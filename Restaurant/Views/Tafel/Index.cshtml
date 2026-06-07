@@ -1,0 +1,406 @@
+﻿@using Restaurant.ViewModels
+@using Restaurant.ViewModels.Tafel
+
+@{
+    ViewData["Title"] = "Tafels overzicht";
+
+    var datum = ViewData["GekozenDatum"] is DateTime d ? d : DateTime.Today;
+    var tijdsloten = ViewData["Tijdsloten"] as IEnumerable<Tijdslot> ?? Enumerable.Empty<Tijdslot>();
+    var reservaties = ViewData["Reservaties"] as List<ReservatieOverzichtViewModel> ?? new List<ReservatieOverzichtViewModel>();
+    var betaaldeReservaties = ViewData["BetaaldeReservaties"] as List<ReservatieOverzichtViewModel> ?? new List<ReservatieOverzichtViewModel>();
+    var alleTafels = ViewData["AlleTafels"] as IEnumerable<Tafel> ?? Enumerable.Empty<Tafel>();
+}
+
+<div class="admin-page">
+
+<div class="alert alert-info d-flex align-items-center mb-4" role="alert">
+    <i class="bi bi-calendar-check me-2 fs-4"></i>
+    <div>
+        <strong class="fs-5">@datum.ToString("dddd, dd MMMM yyyy")</strong>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["WarningMessage"] != null)
+{
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        @TempData["WarningMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="bi bi-funnel me-2"></i>Datum selecteren</h5>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-10">
+                <label class="form-label fw-bold">Datum</label>
+                <input type="date"
+                       name="datum"
+                       class="form-control"
+                       value="@datum.ToString("yyyy-MM-dd")" />
+            </div>
+
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-search me-1"></i> Tonen
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@* Algemeen tafeloverzicht (ongeacht tijdslot) *@
+@if (reservaties.Any() || betaaldeReservaties.Any())
+{
+    var alleBezetteTafels = reservaties
+        .Where(r => r.IsAanwezig)
+        .SelectMany(r => r.TafelIds)
+        .Distinct()
+        .ToList();
+
+    <div class="card mb-4 border-primary">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="bi bi-diagram-3 me-2"></i>Algemeen Tafeloverzicht voor @datum.ToString("dd MMMM yyyy")
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row mb-2">
+                <div class="col-md-12">
+                    <div class="d-flex gap-3 flex-wrap">
+                        <div>
+                            <span class="badge bg-danger me-1">
+                                <i class="bi bi-lock-fill"></i>
+                            </span>
+                            <small>Momenteel bezet (@alleBezetteTafels.Count tafels)</small>
+                        </div>
+                        <div>
+                            <span class="badge bg-success me-1">
+                                <i class="bi bi-check-circle"></i>
+                            </span>
+                            <small>Beschikbaar</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if (alleBezetteTafels.Any())
+            {
+                var bezeteTafelInfo = reservaties
+                    .Where(r => r.IsAanwezig)
+                    .Select(r => new { 
+                        TafelNummers = r.TafelNummers, 
+                        KlantNaam = r.KlantNaam,
+                        TijdslotNaam = r.TijdslotNaam
+                    })
+                    .ToList();
+
+                <div class="mb-2">
+                    <h6 class="text-danger">
+                        <i class="bi bi-lock-fill me-1"></i>Momenteel bezette tafels (alle tijdsloten):
+                    </h6>
+                    <div class="d-flex gap-2 flex-wrap">
+                        @foreach (var info in bezeteTafelInfo)
+                        {
+                            if (!string.IsNullOrEmpty(info.TafelNummers))
+                            {
+                                <span class="badge bg-danger fs-6" title="@info.KlantNaam - @info.TijdslotNaam">
+                                    @info.TafelNummers
+                                </span>
+                            }
+                        }
+                    </div>
+                </div>
+            }
+            else
+            {
+                var bezetteTafelIds = reservaties
+                    .Where(r => r.IsAanwezig)
+                    .SelectMany(r => r.TafelIds)
+                    .Distinct()
+                    .ToList();
+                
+                var vrijeTafels = alleTafels
+                    .Where(t => !bezetteTafelIds.Contains(t.Id))
+                    .OrderBy(t => t.TafelNummer)
+                    .Select(t => t.TafelNummer)
+                    .ToList();
+
+                <p class="text-success mb-0">
+                    <i class="bi bi-check-circle me-2"></i>
+                    @if (vrijeTafels.Any())
+                    {
+                        <strong>Alle tafels zijn momenteel vrij:</strong>
+                        <span>@string.Join(", ", vrijeTafels)</span>
+                    }
+                    else
+                    {
+                        <strong>Er zijn geen actieve tafels beschikbaar.</strong>
+                    }
+                </p>
+            }
+        </div>
+    </div>
+}
+
+@if (reservaties.Any())
+{
+    <h4 class="mt-4 mb-3"><i class="bi bi-people me-2"></i>Reservaties per tijdslot</h4>
+    
+    foreach (var tijdslot in tijdsloten)
+    {
+        var reservatiesVoorTijdslot = reservaties.Where(r => r.TijdSlotId == tijdslot.Id).ToList();
+        
+        if (reservatiesVoorTijdslot.Any())
+        {
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-clock me-2"></i>@tijdslot.Naam
+                        <span class="badge bg-light text-dark ms-2">@reservatiesVoorTijdslot.Count reservatie(s)</span>
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Klant</th>
+                                    <th>Tafels</th>
+                                    <th>Aantal personen</th>
+                                    <th>Status</th>
+                                    @if (User.IsInRole("Zaalverantwoordelijke") || User.IsInRole("Eigenaar"))
+                                    {
+                                        <th>Actie</th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var reservatie in reservatiesVoorTijdslot)
+                                {
+                                    <tr class="@(reservatie.IsAanwezig ? "table-success" : "")">
+                                        <td>
+                                            <strong>@reservatie.KlantNaam</strong>
+                                        </td>
+                                        <td>
+                                            @if (reservatie.IsAanwezig)
+                                            {
+                                                @reservatie.TafelNummers
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted"><em>Nog niet toegewezen</em></span>
+                                            }
+                                        </td>
+                                        <td>@reservatie.AantalPersonen</td>
+                                        <td>
+                                            @if (reservatie.IsAanwezig)
+                                            {
+                                                <span class="badge bg-success">
+                                                    <i class="bi bi-check-circle"></i> Aanwezig
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning text-dark">
+                                                    <i class="bi bi-clock"></i> Gereserveerd
+                                                </span>
+                                            }
+                                        </td>
+                                        @if (User.IsInRole("Zaalverantwoordelijke") || User.IsInRole("Eigenaar"))
+                                        {
+                                            <td>
+                                                @if (!reservatie.IsAanwezig)
+                                                {
+                                                    <div class="btn-group" role="group">
+                                                        <a asp-action="TafelToewijzen" 
+                                                           asp-route-reservatieId="@reservatie.Id" 
+                                                           asp-route-datum="@datum.ToString("yyyy-MM-dd")" 
+                                                           class="btn btn-sm btn-success">
+                                                            <i class="bi bi-table"></i> Wijs tafel toe
+                                                        </a>
+                                                        <button type="button" 
+                                                                class="btn btn-sm btn-outline-danger"
+                                                                onclick="confirmAnnulatie(@reservatie.Id, '@datum.ToString("yyyy-MM-dd")', '@reservatie.KlantNaam', 'Nog niet toegewezen')"
+                                                                title="Annuleer reservatie">
+                                                            <i class="bi bi-x-circle"></i> Annuleer
+                                                        </button>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="btn-group" role="group">
+                                                        <a asp-action="TafelToewijzen" 
+                                                           asp-route-reservatieId="@reservatie.Id" 
+                                                           asp-route-datum="@datum.ToString("yyyy-MM-dd")" 
+                                                           class="btn btn-sm btn-outline-primary"
+                                                           title="Tafel opnieuw toewijzen">
+                                                            <i class="bi bi-arrow-repeat"></i> Wijzig tafel
+                                                        </a>
+                                                        <button type="button" 
+                                                                class="btn btn-sm btn-outline-danger"
+                                                                onclick="confirmAnnulatie(@reservatie.Id, '@datum.ToString("yyyy-MM-dd")', '@reservatie.KlantNaam', '@reservatie.TafelNummers')"
+                                                                title="Annuleer reservatie">
+                                                            <i class="bi bi-x-circle"></i> Annuleer
+                                                        </button>
+                                                    </div>
+                                                }
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    
+    var tijdslotenMetReservaties = reservaties.Select(r => r.TijdSlotId).Distinct().ToList();
+    var tijdslotenZonderReservaties = tijdsloten.Where(t => !tijdslotenMetReservaties.Contains(t.Id)).ToList();
+    
+    if (tijdslotenZonderReservaties.Any())
+    {
+        <div class="alert alert-secondary mt-3">
+            <strong>Tijdsloten zonder reservaties:</strong> 
+            @string.Join(", ", tijdslotenZonderReservaties.Select(t => t.Naam))
+        </div>
+    }
+}
+else
+{
+    <div class="alert alert-info mt-4">
+        <i class="bi bi-info-circle me-2"></i>
+        Er zijn geen reservaties voor <strong>@datum.ToString("dddd, dd MMMM yyyy")</strong>.
+    </div>
+}
+
+@* Betaalde reservaties onderaan *@
+@if (betaaldeReservaties.Any())
+{
+    <div class="card mt-5 border-success">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">
+                <i class="bi bi-check-circle me-2"></i>Betaalde Reservaties van @datum.ToString("dd MMMM yyyy")
+                <span class="badge bg-light text-dark ms-2">@betaaldeReservaties.Count reservatie(s)</span>
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Tijdslot</th>
+                            <th>Klant</th>
+                            <th>Tafels</th>
+                            <th>Aantal personen</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var reservatie in betaaldeReservaties)
+                        {
+                            <tr class="table-success">
+                                <td>
+                                    <i class="bi bi-clock me-1"></i>@reservatie.TijdslotNaam
+                                </td>
+                                <td>
+                                    <strong>@reservatie.KlantNaam</strong>
+                                </td>
+                                <td>@reservatie.TafelNummers</td>
+                                <td>@reservatie.AantalPersonen</td>
+                                <td>
+                                    <span class="badge bg-success">
+                                        <i class="bi bi-check-circle-fill"></i> Betaald & Afgewerkt
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer bg-light">
+            <small class="text-muted">
+                <i class="bi bi-info-circle me-1"></i>
+                Deze reservaties zijn voltooid en betaald. De tafels zijn vrijgegeven voor nieuwe reservaties.
+            </small>
+        </div>
+    </div>
+}
+
+@* Bevestigingsmodal voor annulatie *@
+<div class="modal fade" id="annulatieModal" tabindex="-1" aria-labelledby="annulatieModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="annulatieModalLabel">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Reservatie Annuleren
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-2"><strong>Weet u zeker dat u deze reservatie wilt annuleren?</strong></p>
+                <div class="alert alert-warning">
+                    <p class="mb-1"><strong>Klant:</strong> <span id="modal-klant"></span></p>
+                    <p class="mb-1"><strong>Huidige tafel(s):</strong> <span id="modal-tafels"></span></p>
+                </div>
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle me-1"></i>
+                    <strong>LET OP:</strong> Deze actie kan niet ongedaan worden gemaakt!<br>
+                    De volledige reservatie wordt verwijderd uit het systeem, inclusief alle bestellingen.
+                </div>
+                <p class="text-muted small mb-0">
+                    <i class="bi bi-info-circle me-1"></i>
+                    De tafel(s) worden onmiddellijk vrijgegeven voor nieuwe reservaties.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>Nee, Annuleren
+                </button>
+                <form id="annulatieForm" method="post" asp-action="AnnuleerReservatie" style="display: inline;">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="annulatie-reservatieId" name="reservatieId" />
+                    <input type="hidden" id="annulatie-datum" name="datum" />
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-1"></i>Ja, Verwijder Reservatie
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function confirmAnnulatie(reservatieId, datum, klantNaam, tafelNummers) {
+        // Vul modal met data
+        document.getElementById('modal-klant').textContent = klantNaam;
+        document.getElementById('modal-tafels').textContent = tafelNummers || 'Geen';
+        document.getElementById('annulatie-reservatieId').value = reservatieId;
+        document.getElementById('annulatie-datum').value = datum;
+        
+        // Toon modal
+        var modal = new bootstrap.Modal(document.getElementById('annulatieModal'));
+        modal.show();
+    }
+</script>

@@ -1,0 +1,135 @@
+@model Restaurant.ViewModels.Tafel.TafelToewijzingViewModel
+
+@{
+    ViewData["Title"] = "Tafel Toewijzen";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">
+        <i class="bi bi-table me-2"></i>Tafel Toewijzen
+    </h2>
+
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">Reservatie Details</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong><i class="bi bi-person me-2"></i>Klant:</strong> @Model.KlantNaam</p>
+                    <p><strong><i class="bi bi-people me-2"></i>Aantal personen:</strong> @Model.AantalPersonen</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong><i class="bi bi-calendar me-2"></i>Datum:</strong> @Model.Datum.ToString("dddd, dd MMMM yyyy")</p>
+                    <p><strong><i class="bi bi-clock me-2"></i>Tijdslot:</strong> @Model.TijdslotNaam</p>
+                </div>
+            </div>
+            <div class="alert alert-warning mt-2">
+                <i class="bi bi-info-circle me-2"></i><strong>Oorspronkelijk gereserveerd aan:</strong> @Model.GereserveerdeTafels
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <form asp-action="TafelToewijzen" method="post">
+        <input type="hidden" name="reservatieId" value="@Model.ReservatieId" />
+        <input type="hidden" name="datum" value="@Model.Datum.ToString("yyyy-MM-dd")" />
+
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Selecteer Tafels</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-3">
+                    <i class="bi bi-info-circle"></i> 
+                    Selecteer één of meerdere tafels voor deze reservatie. 
+                    Tafels met een <span class="badge bg-danger">Bezet</span> label zijn al toegewezen aan andere aanwezige gasten.
+                </p>
+
+                <div class="row">
+                    @foreach (var tafel in Model.BeschikbareTafels)
+                    {
+                        var cardClass = tafel.IsBezet ? "border-danger" : (tafel.IsGereserveerd ? "border-warning" : "border-success");
+                        var isDisabled = tafel.IsBezet;
+                        var checkboxChecked = tafel.IsGereserveerd && !tafel.IsBezet;
+
+                        <div class="col-md-4 col-lg-3 mb-3">
+                            <div class="card @cardClass h-100">
+                                <div class="card-body">
+                                    <div class="form-check">
+                                        <input class="form-check-input" 
+                                               type="checkbox" 
+                                               name="geselecteerdeTafels" 
+                                               value="@tafel.TafelId" 
+                                               id="tafel_@tafel.TafelId"
+                                               @(isDisabled ? "disabled" : "")
+                                               @(checkboxChecked ? "checked" : "") />
+                                        <label class="form-check-label" for="tafel_@tafel.TafelId">
+                                            <strong>Tafel @tafel.TafelNummer</strong>
+                                        </label>
+                                    </div>
+                                    <hr class="my-2" />
+                                    <p class="mb-1 small">
+                                        <i class="bi bi-people"></i> 
+                                        @tafel.MinAantalPersonen - @tafel.AantalPersonen personen
+                                    </p>
+                                    @if (tafel.IsBezet)
+                                    {
+                                        <span class="badge bg-danger">
+                                            <i class="bi bi-lock-fill"></i> Bezet
+                                        </span>
+                                    }
+                                    else if (tafel.IsGereserveerd)
+                                    {
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="bi bi-bookmark-fill"></i> Gereserveerd
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-check-circle"></i> Beschikbaar
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-success btn-lg">
+                <i class="bi bi-check-circle me-2"></i>Bevestig en markeer aanwezig
+            </button>
+            <a asp-action="Index" asp-route-datum="@Model.Datum.ToString("yyyy-MM-dd")" class="btn btn-secondary btn-lg">
+                <i class="bi bi-x-circle me-2"></i>Annuleren
+            </a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .card.border-success {
+        border-width: 2px;
+    }
+    .card.border-warning {
+        border-width: 2px;
+    }
+    .card.border-danger {
+        border-width: 2px;
+        opacity: 0.6;
+    }
+    .form-check-input:checked {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+</style>

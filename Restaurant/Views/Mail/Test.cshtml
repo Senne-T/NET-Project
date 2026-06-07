@@ -1,0 +1,26 @@
+﻿@model Restaurant.ViewModels.Mail.TestMailViewModel
+
+<div class="container mt-4">
+    <h2>Testmail versturen</h2>
+
+    <p>
+        Sjabloon: <strong>@Model.TemplateNaam</strong>
+    </p>
+
+    <form asp-action="Test" method="post">
+        <input type="hidden" asp-for="TemplateId" />
+
+        <div class="mb-3">
+            <label asp-for="TestEmail" class="form-label">E-mailadres</label>
+            <input asp-for="TestEmail" class="form-control" type="email" required />
+            <span asp-validation-for="TestEmail" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-success">Verstuur testmail</button>
+        <a asp-action="Index" class="btn btn-secondary">Annuleren</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

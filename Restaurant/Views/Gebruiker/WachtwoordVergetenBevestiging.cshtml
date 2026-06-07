@@ -1,0 +1,228 @@
+﻿@{
+    ViewData["Title"] = "E-mail verzonden";
+}
+
+<style>
+    .confirmation-container {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 0;
+    }
+
+    .confirmation-card {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        max-width: 550px;
+        width: 100%;
+        overflow: hidden;
+    }
+
+    .confirmation-header {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .confirmation-icon {
+        background: white;
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        animation: successPulse 2s ease-in-out infinite;
+    }
+
+    .confirmation-icon i {
+        font-size: 3.5rem;
+        color: #28a745;
+    }
+
+    @@keyframes successPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    .confirmation-header h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .confirmation-header p {
+        margin: 0;
+        opacity: 0.95;
+    }
+
+    .confirmation-body {
+        padding: 2rem;
+    }
+
+    .message-box {
+        background: linear-gradient(135deg, #e7f3ff 0%, #f0f9ff 100%);
+        border-left: 3px solid #667eea;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .message-box p {
+        margin: 0;
+        color: #2d3748;
+        line-height: 1.6;
+    }
+
+    .instructions {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .instructions h5 {
+        color: #2d3748;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        font-size: 1rem;
+    }
+
+    .instructions ol {
+        margin: 0;
+        padding-left: 1.5rem;
+        color: #6c757d;
+    }
+
+    .instructions li {
+        margin-bottom: 0.75rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .btn-primary-action {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 0.875rem;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.3s;
+    }
+
+    .btn-primary-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        color: white;
+    }
+
+    .btn-secondary-action {
+        background: white;
+        border: 2px solid #667eea;
+        color: #667eea;
+        font-weight: 600;
+        padding: 0.875rem;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.3s;
+    }
+
+    .btn-secondary-action:hover {
+        background: #667eea;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .help-text {
+        text-align: center;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .help-text p {
+        color: #6c757d;
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .help-text a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .help-text a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="confirmation-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <div class="confirmation-card">
+                    <div class="confirmation-header">
+                        <div class="confirmation-icon">
+                            <i class="bi bi-envelope-check-fill"></i>
+                        </div>
+                        <h1>E-mail Verzonden!</h1>
+                        <p>Controleer uw inbox</p>
+                    </div>
+
+                    <div class="confirmation-body">
+                        <div class="message-box">
+                            <p>
+                                <i class="bi bi-info-circle me-2"></i>
+                                Als er een account bestaat met het opgegeven e-mailadres, hebben we een e-mail verzonden met instructies om uw wachtwoord te resetten.
+                            </p>
+                        </div>
+
+                        <div class="instructions">
+                            <h5>
+                                <i class="bi bi-list-check me-2"></i>
+                                Volgende stappen
+                            </h5>
+                            <ol>
+                                <li>Controleer uw inbox (en spam folder)</li>
+                                <li>Open de e-mail van Chez Antoine</li>
+                                <li>Klik op de resetlink in de e-mail</li>
+                                <li>Kies een nieuw wachtwoord</li>
+                            </ol>
+                        </div>
+
+                        <div class="action-buttons">
+                            <a asp-action="Login" asp-controller="Gebruiker" class="btn-primary-action">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>Terug naar Aanmelden
+                            </a>
+                            <a asp-action="Index" asp-controller="Home" class="btn-secondary-action">
+                                <i class="bi bi-house-door me-2"></i>Naar Homepage
+                            </a>
+                        </div>
+
+                        <div class="help-text">
+                            <p><strong>Geen e-mail ontvangen?</strong></p>
+                            <p class="mb-2">Controleer uw spam folder of probeer het opnieuw.</p>
+                            <a asp-action="WachtwoordVergeten" asp-controller="Gebruiker">
+                                <i class="bi bi-arrow-clockwise me-1"></i>Opnieuw verzenden
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

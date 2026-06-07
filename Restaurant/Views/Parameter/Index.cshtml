@@ -1,0 +1,49 @@
+﻿@using Restaurant.ViewModels.Parameter
+@model IEnumerable<ParameterViewModel>
+
+@{
+    ViewData["Title"] = "Parameters";
+}
+
+<div class="admin-page">
+
+    <!-- header -->
+    <div class="admin-hero d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h2 class="mb-1 fw-bold">Parameters</h2>
+            <p class="page-subtitle mb-0">Configuratie-instellingen beheren</p>
+        </div>
+    </div>
+
+    <!-- table card -->
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Naam</th>
+                            <th>Waarde</th>
+                            <th class="text-end pe-4">Acties</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4 fw-semibold">@item.Naam</td>
+                                <td>@item.Waarde</td>
+                                <td class="text-end pe-4">
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm">
+                                        <i class="bi bi-pencil me-1"></i> Aanpassen
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>

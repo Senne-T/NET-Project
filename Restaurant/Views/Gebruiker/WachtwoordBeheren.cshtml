@@ -1,0 +1,219 @@
+﻿@using Restaurant.ViewModels.Gebruiker
+@model GebruikerWachtwoordBeherenViewModel
+
+@{
+    ViewData["Title"] = "Wachtwoord wijzigen";
+}
+
+<style>
+    .password-container {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 0;
+    }
+
+    .password-card {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        max-width: 500px;
+        width: 100%;
+        overflow: hidden;
+        margin: 0 auto;
+    }
+
+    .password-header {
+        background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .password-header i {
+        font-size: 3rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .password-header h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .password-header p {
+        margin: 0;
+        opacity: 0.95;
+    }
+
+    .password-body {
+        padding: 2rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+        font-weight: 500;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 0.5rem;
+        padding: 0.625rem;
+    }
+
+    .form-control:focus {
+        border-color: #ffc107;
+        box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.15);
+    }
+
+    .password-requirements {
+        background: #f8f9fa;
+        border-left: 3px solid #ffc107;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+        font-size: 0.875rem;
+    }
+
+    .password-requirements h6 {
+        color: #2d3748;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    .password-requirements ul {
+        margin: 0;
+        padding-left: 1.5rem;
+        color: #6c757d;
+    }
+
+    .password-requirements li {
+        margin-bottom: 0.25rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+    }
+
+    .btn-save-password {
+        background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 0.875rem;
+        border-radius: 0.5rem;
+        transition: all 0.3s;
+    }
+
+    .btn-save-password:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 193, 7, 0.3);
+        color: white;
+    }
+
+    .btn-cancel {
+        background: #f8f9fa;
+        border: 2px solid #e9ecef;
+        color: #6c757d;
+        font-weight: 600;
+        padding: 0.875rem;
+        border-radius: 0.5rem;
+        transition: all 0.3s;
+        text-decoration: none;
+        text-align: center;
+    }
+
+    .btn-cancel:hover {
+        background: #e9ecef;
+        color: #495057;
+    }
+
+    .required-indicator {
+        color: #dc3545;
+        margin-left: 0.25rem;
+    }
+</style>
+
+<div class="password-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8 col-12">
+                <div class="password-card">
+                    <div class="password-header">
+                        <i class="bi bi-key-fill"></i>
+                        <h1>Wachtwoord Wijzigen</h1>
+                        <p>Kies een nieuw, sterk wachtwoord</p>
+                    </div>
+
+                    <div class="password-body">
+                        <form asp-controller="Gebruiker" asp-action="WachtwoordBeheren" method="post">
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-4 mb-3" role="alert"></div>
+
+                            <input type="hidden" asp-for="Id" />
+
+                            <div class="form-group">
+                                <label asp-for="OriginalPassword">
+                                    Huidig wachtwoord <span class="required-indicator">*</span>
+                                </label>
+                                <input asp-for="OriginalPassword" type="password" class="form-control" placeholder="Voer uw huidige wachtwoord in" />
+                                <span asp-validation-for="OriginalPassword" class="text-danger small"></span>
+                            </div>
+
+                            <div class="password-requirements">
+                                <h6>
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    Wachtwoord vereisten
+                                </h6>
+                                <ul>
+                                    <li>Minimaal 10 karakters</li>
+                                    <li>Bevat letters en cijfers</li>
+                                    <li>Gebruik geen eenvoudige wachtwoorden</li>
+                                </ul>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="NewPassword">
+                                    Nieuw wachtwoord <span class="required-indicator">*</span>
+                                </label>
+                                <input asp-for="NewPassword" type="password" class="form-control" placeholder="Min. 10 karakters" />
+                                <span asp-validation-for="NewPassword" class="text-danger small"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="ConfirmPassword">
+                                    Bevestig nieuw wachtwoord <span class="required-indicator">*</span>
+                                </label>
+                                <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Herhaal nieuw wachtwoord" />
+                                <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                            </div>
+
+                            <div class="action-buttons">
+                                <button type="submit" class="btn-save-password">
+                                    <i class="bi bi-check-circle me-2"></i>Wachtwoord Opslaan
+                                </button>
+                                <a asp-action="Beheren" asp-route-id="@Model.Id" class="btn-cancel">
+                                    <i class="bi bi-x-circle me-2"></i>Annuleren
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

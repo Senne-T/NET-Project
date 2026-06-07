@@ -1,0 +1,26 @@
+﻿@model Restaurant.ViewModels.ProductDeleteViewModel
+
+@{
+    ViewData["Title"] = "Verwijderen";
+}
+
+<h2>Drank verwijderen</h2>
+
+<div class="alert alert-danger mt-3">
+    <h5>Weet je zeker dat je dit drank wilt verwijderen?</h5>
+</div>
+
+<div class="card mt-3">
+    <div class="card-body">
+        <h4>@Model.Naam</h4>
+        <p><strong>Categorie:</strong> @Model.CategorieNaam</p>
+        <p><strong>Allergenen:</strong> @Model.AllergenenInfo</p>
+        <p><strong>Actief:</strong> @(Model.Actief ? "Ja" : "Nee")</p>
+        <p><strong>Prijs:</strong> € @Model.Prijs.ToString("0.00")</p>
+    </div>
+</div>
+
+<form method="post" asp-action="Delete" asp-route-id="@Model.Id" class="mt-3">
+    <button type="submit" class="btn btn-danger">Verwijderen</button>
+    <a asp-action="Index" class="btn btn-secondary">Annuleren</a>
+</form>

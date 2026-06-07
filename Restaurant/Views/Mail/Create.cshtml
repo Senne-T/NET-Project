@@ -1,0 +1,35 @@
+﻿@model Restaurant.ViewModels.Mail.MailViewModel
+
+<div class="container mt-4">
+    <h2>Nieuw e-mailsjabloon</h2>
+
+    <form asp-action="Create" method="post">
+        <div class="mb-3">
+            <label asp-for="Naam" class="form-label"></label>
+            <input asp-for="Naam" class="form-control" />
+            <span asp-validation-for="Naam" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Onderwerp" class="form-label"></label>
+            <input asp-for="Onderwerp" class="form-control" />
+            <span asp-validation-for="Onderwerp" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Body" class="form-label">Inhoud</label>
+            <textarea asp-for="Body" rows="8" class="form-control"></textarea>
+            <div class="form-text">
+                Je kan placeholders gebruiken zoals [VOORNAAM], [ACHTERNAAM], [DATUM], [TIJD], [AANTAL], [TAFEL].
+            </div>
+            <span asp-validation-for="Body" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Opslaan</button>
+        <a asp-action="Index" class="btn btn-secondary">Annuleren</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

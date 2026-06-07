@@ -1,0 +1,515 @@
+@model Restaurant.ViewModels.Reservatie.MyReservationsViewModel
+
+@{
+    ViewData["Title"] = "Mijn Reservaties";
+}
+
+<style>
+    .reservations-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem 0;
+        margin-bottom: 1.5rem;
+        border-radius: 0 0 1rem 1rem;
+    }
+
+    .reservations-hero h1 {
+        font-size: 1.75rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .reservations-hero p {
+        font-size: 0.95rem;
+        margin-bottom: 0;
+    }
+
+    .reservation-card {
+        background: white;
+        border-radius: 0.75rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        overflow: hidden;
+        margin-bottom: 0.75rem;
+        transition: all 0.3s;
+    }
+
+    .reservation-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+
+    .reservation-header {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 0.75rem 1rem;
+        border-bottom: 2px solid #667eea;
+    }
+
+    .reservation-body {
+        padding: 0.75rem 1rem;
+    }
+
+    .reservation-date {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #667eea;
+        margin-bottom: 0.125rem;
+    }
+
+    .reservation-time {
+        font-size: 0.9rem;
+        color: #718096;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem;
+        background: #f8f9fa;
+        border-radius: 0.5rem;
+    }
+
+    .info-item i {
+        font-size: 1.1rem;
+        color: #667eea;
+        min-width: 20px;
+    }
+
+    .info-label {
+        font-size: 0.65rem;
+        color: #718096;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        line-height: 1;
+    }
+
+    .info-value {
+        font-weight: 600;
+        color: #2d3748;
+        font-size: 0.875rem;
+        line-height: 1.2;
+    }
+
+    .status-badge {
+        padding: 0.25rem 0.625rem;
+        border-radius: 1rem;
+        font-weight: 600;
+        font-size: 0.75rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .status-upcoming {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+    }
+
+    .status-paid {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .status-not-shown {
+        background: #ffc107;
+        color: #000;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-top: 0.75rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .btn-edit, .btn-cancel, .btn-survey {
+        padding: 0.4rem 0.875rem;
+        border-radius: 0.4rem;
+        font-weight: 600;
+        font-size: 0.8rem;
+        transition: all 0.3s;
+    }
+
+    .btn-edit {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+    }
+
+    .btn-edit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+        color: white;
+    }
+
+    .btn-cancel {
+        background: white;
+        border: 2px solid #dc3545;
+        color: #dc3545;
+    }
+
+    .btn-cancel:hover {
+        background: #dc3545;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 3px 10px rgba(220, 53, 69, 0.3);
+    }
+
+    .btn-survey {
+        background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+        border: none;
+        color: white;
+    }
+
+    .btn-survey:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 3px 10px rgba(255, 193, 7, 0.3);
+        color: white;
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .section-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #2d3748;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0;
+    }
+
+    .section-count {
+        background: #667eea;
+        color: white;
+        padding: 0.125rem 0.5rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2.5rem 1.5rem;
+        background: white;
+        border-radius: 0.75rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .empty-state i {
+        font-size: 3.5rem;
+        color: #e9ecef;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state .btn-edit i {
+        font-size: 0.875rem;
+    }
+
+    .empty-state h3 {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .past-reservations-toggle {
+        background: white;
+        border: 2px solid #667eea;
+        color: #667eea;
+        padding: 0.625rem 1.25rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+
+    .past-reservations-toggle:hover {
+        background: #667eea;
+        color: white;
+    }
+
+    .star-rating {
+        display: inline-flex;
+        gap: 0.125rem;
+    }
+
+    .star-rating i {
+        font-size: 1rem;
+    }
+
+    .no-cancel-notice {
+        padding: 0.5rem 0.75rem;
+        background: #fff3cd;
+        border-left: 3px solid #ffc107;
+        border-radius: 0.375rem;
+        color: #856404;
+        font-size: 0.8rem;
+        flex-grow: 1;
+    }
+
+    @@media (max-width: 768px) {
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .action-buttons > * {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="reservations-hero">
+    <div class="container">
+        <h1 class="fw-bold">
+            <i class="bi bi-calendar-check-fill"></i> Mijn Reservaties
+        </h1>
+        <p>Beheer uw tafelreservaties</p>
+    </div>
+</div>
+
+<div class="container my-3">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mb-2 py-2" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <strong>@TempData["SuccessMessage"]</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show mb-2 py-2" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <strong>@TempData["ErrorMessage"]</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (Model.UpcomingReservations.Any() || Model.PastReservations.Any())
+    {
+        @if (Model.UpcomingReservations.Any())
+        {
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="bi bi-calendar-event"></i>
+                    Komende
+                    <span class="section-count">@Model.UpcomingReservations.Count</span>
+                </h2>
+            </div>
+
+            @foreach (var reservatie in Model.UpcomingReservations)
+            {
+                <div class="reservation-card">
+                    <div class="reservation-header">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <div>
+                                <div class="reservation-date">
+                                    @reservatie.Datum?.ToString("dd MMM yyyy", new System.Globalization.CultureInfo("nl-NL"))
+                                </div>
+                                <div class="reservation-time">
+                                    <i class="bi bi-clock"></i>
+                                    @reservatie.TijdSlotNaam
+                                </div>
+                            </div>
+                            <div>
+                                @if (!reservatie.IsAanwezig && reservatie.Datum.HasValue && reservatie.Datum.Value.Date >= DateTime.Today)
+                                {
+                                    <span class="status-badge status-upcoming">
+                                        <i class="bi bi-hourglass-split"></i> Aankomend
+                                    </span>
+                                }
+                                else if (reservatie.Bestaald)
+                                {
+                                    <span class="status-badge status-paid">
+                                        <i class="bi bi-check-circle-fill"></i> Betaald
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="reservation-body">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <i class="bi bi-people-fill"></i>
+                                <div>
+                                    <div class="info-label">Gasten</div>
+                                    <div class="info-value">@reservatie.AantalPersonen pers</div>
+                                </div>
+                            </div>
+
+                            <div class="info-item">
+                                <i class="bi bi-table"></i>
+                                <div>
+                                    <div class="info-label">Tafel</div>
+                                    <div class="info-value">@(string.IsNullOrWhiteSpace(reservatie.TafelNummers) ? "T.B.D." : reservatie.TafelNummers)</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="action-buttons">
+                            @if (reservatie.CanCancel)
+                            {
+                                <a href="@Url.Action("Edit", "Reservatie", new { id = reservatie.Id })" class="btn-edit">
+                                    <i class="bi bi-pencil-fill"></i> Wijzigen
+                                </a>
+                                <form method="post" action="@Url.Action("Cancel", "Reservatie", new { id = reservatie.Id })" style="display:inline;" onsubmit="return confirm('Weet u zeker dat u deze reservatie wilt annuleren?')">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn-cancel">
+                                        <i class="bi bi-x-circle-fill"></i> Annuleren
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <div class="no-cancel-notice">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Annuleren niet mogelijk
+                                </div>
+                            }
+
+                            @if (reservatie.Bestaald && reservatie.EvaluatieAantalSterren == -1 && reservatie.Datum.HasValue && DateTime.Now.Date <= reservatie.Datum.Value.AddDays(14))
+                            {
+                                <a href="@Url.Action("Index", "Enquete", new { reservatieId = reservatie.Id })" class="btn-survey">
+                                    <i class="bi bi-star-fill"></i> Enquête
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+
+        @if (Model.PastReservations.Any())
+        {
+            <div class="mt-3">
+                <button class="past-reservations-toggle w-100" type="button" data-bs-toggle="collapse" data-bs-target="#pastReservations">
+                    <i class="bi bi-clock-history me-2"></i>
+                    Oude reservaties (@Model.PastReservations.Count)
+                    <i class="bi bi-chevron-down ms-2"></i>
+                </button>
+            </div>
+
+            <div class="collapse mt-2" id="pastReservations">
+                @foreach (var reservatie in Model.PastReservations)
+                {
+                    <div class="reservation-card">
+                        <div class="reservation-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="reservation-date">
+                                        @reservatie.Datum?.ToString("dd MMM yyyy", new System.Globalization.CultureInfo("nl-NL"))
+                                    </div>
+                                    <div class="reservation-time">
+                                        <i class="bi bi-clock"></i>
+                                        @reservatie.TijdSlotNaam
+                                    </div>
+                                </div>
+                                @if (reservatie.Bestaald)
+                                {
+                                    <span class="status-badge status-paid">
+                                        <i class="bi bi-check-circle-fill"></i> Betaald
+                                    </span>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="reservation-body">
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <i class="bi bi-people-fill"></i>
+                                    <div>
+                                        <div class="info-label">Gasten</div>
+                                        <div class="info-value">@reservatie.AantalPersonen pers</div>
+                                    </div>
+                                </div>
+
+                                <div class="info-item">
+                                    <i class="bi bi-table"></i>
+                                    <div>
+                                        <div class="info-label">Tafel</div>
+                                        <div class="info-value">@(string.IsNullOrWhiteSpace(reservatie.TafelNummers) ? "N.v.t." : reservatie.TafelNummers)</div>
+                                    </div>
+                                </div>
+
+                                @if (reservatie.EvaluatieAantalSterren >= 0)
+                                {
+                                    <div class="info-item">
+                                        <i class="bi bi-star-fill"></i>
+                                        <div>
+                                            <div class="info-label">Evaluatie</div>
+                                            <div class="star-rating">
+                                                @for (int i = 0; i < reservatie.EvaluatieAantalSterren; i++)
+                                                {
+                                                    <i class="bi bi-star-fill text-warning"></i>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
+                            @* Toon enquête knop als: betaald, geen evaluatie, en binnen 14 dagen *@
+                            @if (reservatie.Bestaald && reservatie.EvaluatieAantalSterren == -1 && reservatie.Datum.HasValue)
+                            {
+                                var dagenSindsReservatie = (DateTime.Now.Date - reservatie.Datum.Value.Date).Days;
+                                if (dagenSindsReservatie >= 0 && dagenSindsReservatie <= 14)
+                                {
+                                    <div class="action-buttons">
+                                        <a href="@Url.Action("Index", "Enquete", new { reservatieId = reservatie.Id })" class="btn-survey w-100">
+                                            <i class="bi bi-star-fill"></i> Enquête invullen (@dagenSindsReservatie dagen geleden)
+                                        </a>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    }
+    else
+    {
+        <div class="empty-state">
+            <i class="bi bi-calendar-x"></i>
+            <h3>Nog geen reservaties</h3>
+            <p class="text-muted">Maak nu uw eerste reservatie!</p>
+            <a href="@Url.Action("Index", "Reservatie")" class="btn-edit">
+                <i class="bi bi-plus-circle"></i> Nieuwe Reservatie
+            </a>
+        </div>
+    }
+
+    <div class="mt-3 text-center">
+        <a href="@Url.Action("Index", "Home")" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-house-door"></i> Terug
+        </a>
+    </div>
+</div>

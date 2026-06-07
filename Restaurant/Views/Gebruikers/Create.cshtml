@@ -1,0 +1,206 @@
+﻿@using Restaurant.ViewModels.Gebruikers
+@model GebruikersCreateViewModel
+
+@inject UserManager<CustomUser> UserManager
+@{
+	ViewData["Title"] = $"Account creëren";
+}
+
+<div class="container mt-4">
+	<div class="row justify-content-center">
+		<div class="col-lg-8">
+			<div class="card shadow">
+				<div class="d-flex card-header bg-primary text-white justify-content-between">
+					<h2 class="mb-0">
+						<i class="bi bi-person-gear"></i> Account creëren
+					</h2>
+				</div>
+				<div class="card-body">
+					<form id="createForm" asp-controller="Gebruikers" asp-action="Create" method="post">
+						@if (TempData["Error"] != null)
+						{
+							<div class="alert alert-danger">
+								@TempData["Error"]
+							</div>
+						}
+						<div class="row">
+							<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+							<div class="col-md-6">
+								<h4 class="text-primary mb-3">
+									<i class="bi bi-info-circle"></i> Persoonlijke Informatie
+								</h4>
+								<table class="table table-borderless">
+									<tbody>
+										<tr>
+											<label asp-for="Emailadres"></label>
+											<input asp-for="Emailadres" class="form-control" autocomplete="username" aria-required="true" />
+											<span asp-validation-for="Emailadres" class="text-danger"></span>
+										</tr>
+										<tr>
+											<label asp-for="Voornaam"></label>
+											<input asp-for="Voornaam" class="form-control" />
+											<span asp-validation-for="Voornaam" class="text-danger"></span>
+										</tr>
+										<tr>
+											<label asp-for="Achternaam"></label>
+											<input asp-for="Achternaam" class="form-control" />
+											<span asp-validation-for="Achternaam" class="text-danger"></span>
+										</tr>
+										<tr>
+											<label asp-for="Password"></label>
+											<input asp-for="Password" class="form-control" autocomplete="new-password" aria-required="true" />
+											<span asp-validation-for="Password" class="text-danger"></span>
+										</tr>
+										<tr>
+											<label asp-for="ConfirmPassword"></label>
+											<input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" />
+											<span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<div class="col-md-6">
+								<h4 class="text-primary mb-3">
+									<i class="bi bi-house"></i> Adresgegevens
+								</h4>
+								<table class="table table-borderless">
+									<tbody>
+										<tr class="form-group">
+											<label asp-for="LandId" class="control-label">Selecteer een land</label>
+											<select asp-for="LandId" class="form-control" asp-items="Model.Landen">
+												<option value="">Kies land</option>
+											</select>
+											<span asp-validation-for="LandId" class="text-danger"></span>
+										</tr>
+										<tr>
+											<label asp-for="Adres"></label>
+											<input asp-for="Adres" class="form-control" />
+											<span asp-validation-for="Adres" class="text-danger"></span>
+										</tr>
+										<tr>
+											<label asp-for="Huisnummer"></label>
+											<input asp-for="Huisnummer" class="form-control" />
+											<span asp-validation-for="Huisnummer" class="text-danger"></span>
+										</tr>
+										<tr>
+											<label asp-for="Postcode"></label>
+											<input asp-for="Postcode" class="form-control" />
+											<span asp-validation-for="Postcode" class="text-danger"></span>
+										</tr>
+										<tr>
+											<label asp-for="Gemeente"></label>
+											<input asp-for="Gemeente" class="form-control" />
+											<span asp-validation-for="Gemeente" class="text-danger"></span>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<div class="mb-3">
+								<label class="form-label">Rollen</label>
+
+								<div id="rollen-container">
+									<div class="d-flex align-items-center mb-2 rol-item">
+										<select name="RollenId" class="form-control me-2">
+											<option value="">Kies rol</option>
+											@foreach (var rol in Model.AlleRollen)
+											{
+												<option value="@rol.Value">@rol.Text</option>
+											}
+										</select>
+
+										<!-- eerste rol mag je niet verwijderen -->
+										<button type="button"
+												class="btn btn-outline-danger"
+												disabled
+												title="Minstens één rol verplicht">
+											<i class="bi bi-x"></i>
+										</button>
+									</div>
+								</div>
+
+								<button type="button" class="btn btn-outline-primary btn-sm" onclick="voegRolToe()">
+									<i class="bi bi-plus"></i> Rol toevoegen
+								</button>
+							</div>
+						</div>
+						<div class="row mt-4">
+							<div class="col-12">
+								<div class="d-flex justify-content-between">
+									<a asp-action="Index" asp-controller="Gebruikers" class="btn btn-secondary">
+										<i class="bi bi-arrow-left"></i> Annuleren
+									</a>
+									<div class="row">
+										<button id="createSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Opslaan</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	document.addEventListener("change", function (e) {
+		if (e.target.matches('select[name="RollenId"]')) {
+			updateRolOpties();
+		}
+	});
+
+	function updateRolOpties() {
+		const selects = document.querySelectorAll('select[name="RollenId"]');
+		const gekozenRollen = Array.from(selects)
+			.map(s => s.value)
+			.filter(v => v);
+
+		selects.forEach(select => {
+			Array.from(select.options).forEach(option => {
+				if (option.value === "") return;
+
+				option.disabled =
+					gekozenRollen.includes(option.value) &&
+					option.value !== select.value;
+			});
+		});
+	}
+
+	function voegRolToe() {
+		const container = document.getElementById("rollen-container");
+
+		const wrapper = document.createElement("div");
+		wrapper.className = "d-flex align-items-center mb-2 rol-item";
+
+		wrapper.innerHTML = `
+			<select name="RollenId" class="form-control me-2" onchange="updateRolOpties()">
+				<option value="">Kies rol</option>
+	@foreach (var rol in Model.AlleRollen)
+	{
+		<text><option value="@rol.Value">@rol.Text</option></text>
+	}
+			</select>
+
+			<button type="button"
+					class="btn btn-outline-danger"
+					onclick="verwijderRol(this)">
+				<i class="bi bi-x"></i>
+			</button>
+		`;
+
+		container.appendChild(wrapper);
+		updateRolOpties();
+	}
+
+	function verwijderRol(button) {
+		const rolItem = button.closest(".rol-item");
+		rolItem.remove();
+		updateRolOpties();
+	}
+</script>
+
+@section Scripts {
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+}

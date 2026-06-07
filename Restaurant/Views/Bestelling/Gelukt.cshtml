@@ -1,0 +1,377 @@
+﻿@model Restaurant.ViewModels.Bestelling.BestellingGeluktViewModel
+
+@{
+    ViewData["Title"] = "Bestelling geplaatst";
+}
+
+<style>
+    .success-hero {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 3rem 0;
+        margin-bottom: 3rem;
+        border-radius: 0 0 2rem 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .success-hero::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 10%, transparent 10%);
+        background-size: 50px 50px;
+        animation: confetti 20s linear infinite;
+    }
+
+    @@keyframes confetti {
+        0% { transform: translateY(0) rotate(0deg); }
+        100% { transform: translateY(100%) rotate(360deg); }
+    }
+
+    .success-icon {
+        font-size: 5rem;
+        animation: bounce 1s ease-in-out;
+        display: inline-block;
+        position: relative;
+        z-index: 1;
+    }
+
+    @@keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
+    }
+
+    .success-title {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-top: 1rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .success-subtitle {
+        font-size: 1.2rem;
+        opacity: 0.95;
+        position: relative;
+        z-index: 1;
+    }
+
+    .order-summary-card {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .order-summary-header {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        padding: 1.5rem;
+        border-bottom: 3px solid #28a745;
+    }
+
+    .order-item-row {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #e9ecef;
+        transition: background-color 0.3s;
+    }
+
+    .order-item-row:hover {
+        background-color: #f8fff9;
+    }
+
+    .order-item-row:last-child {
+        border-bottom: none;
+    }
+
+    .product-name {
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #2d3748;
+    }
+
+    .quantity-badge {
+        background: #28a745;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 2rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .price-column {
+        color: #28a745;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .order-total-footer {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 1.75rem;
+        font-weight: bold;
+    }
+
+    .info-card {
+        background: linear-gradient(135deg, #e7f3ff 0%, #f0f9ff 100%);
+        border-left: 4px solid #667eea;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border-radius: 0.5rem;
+    }
+
+    .warning-card {
+        background: linear-gradient(135deg, #fff3cd 0%, #fffbea 100%);
+        border-left: 4px solid #ffc107;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border-radius: 0.5rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-top: 2rem;
+    }
+
+    .btn-new-order {
+        flex: 1;
+        min-width: 200px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        font-size: 1.1rem;
+        font-weight: 600;
+        padding: 1rem 2rem;
+        border-radius: 0.5rem;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-new-order:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        color: white;
+    }
+
+    .btn-my-reservations {
+        flex: 1;
+        min-width: 200px;
+        background: white;
+        border: 2px solid #6c757d;
+        color: #6c757d;
+        font-size: 1.1rem;
+        font-weight: 600;
+        padding: 1rem 2rem;
+        border-radius: 0.5rem;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-my-reservations:hover {
+        background: #6c757d;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(108, 117, 125, 0.3);
+    }
+
+    .timeline {
+        display: flex;
+        justify-content: space-between;
+        margin: 2rem 0;
+        padding: 0 2rem;
+        position: relative;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        top: 25px;
+        left: 10%;
+        right: 10%;
+        height: 3px;
+        background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+    }
+
+    .timeline-step {
+        text-align: center;
+        position: relative;
+        flex: 1;
+    }
+
+    .timeline-icon {
+        width: 50px;
+        height: 50px;
+        background: white;
+        border: 3px solid #28a745;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: #28a745;
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .timeline-label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    @@media (max-width: 768px) {
+        .success-icon {
+            font-size: 3rem;
+        }
+
+        .success-title {
+            font-size: 1.75rem;
+        }
+
+        .timeline {
+            flex-direction: column;
+            padding: 0;
+            gap: 1rem;
+        }
+
+        .timeline::before {
+            display: none;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .btn-new-order, .btn-my-reservations {
+            width: 100%;
+            min-width: auto;
+        }
+    }
+</style>
+
+<div class="success-hero">
+    <div class="success-icon">✅</div>
+    <h1 class="success-title">Bestelling Geplaatst!</h1>
+    <p class="success-subtitle">Bedankt! Uw bestelling wordt zo snel mogelijk bereid.</p>
+</div>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            
+            <!-- Timeline -->
+            <div class="timeline">
+                <div class="timeline-step">
+                    <div class="timeline-icon">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
+                    <div class="timeline-label">Besteld</div>
+                </div>
+                <div class="timeline-step">
+                    <div class="timeline-icon">
+                        <i class="bi bi-egg-fried"></i>
+                    </div>
+                    <div class="timeline-label">In bereiding</div>
+                </div>
+                <div class="timeline-step">
+                    <div class="timeline-icon">
+                        <i class="bi bi-truck"></i>
+                    </div>
+                    <div class="timeline-label">Wordt geserveerd</div>
+                </div>
+            </div>
+
+            @if (!(bool)ViewBag.IsReservatieGekoppeld)
+            {
+                <div class="warning-card">
+                    <h5 class="mb-2">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>Opmerking
+                    </h5>
+                    <p class="mb-0">Deze bestelling is niet gekoppeld aan een reservatie.</p>
+                </div>
+            }
+            else
+            {
+                <div class="info-card">
+                    <h5 class="mb-2">
+                        <i class="bi bi-info-circle-fill me-2"></i>Reservatie
+                    </h5>
+                    <p class="mb-0">
+                        Uw bestelling is gekoppeld aan <strong>reservatie #@Model.ReservatieId</strong>
+                    </p>
+                </div>
+            }
+
+            <!-- Order Summary -->
+            <div class="order-summary-card">
+                <div class="order-summary-header">
+                    <h4 class="mb-1 fw-bold">
+                        <i class="bi bi-receipt-cutoff"></i> Uw Bestelling
+                    </h4>
+                    <small class="text-muted">@Model.Bestellingen.Count item(s)</small>
+                </div>
+
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Product</th>
+                            <th class="text-center">Aantal</th>
+                            <th class="text-end">Prijs</th>
+                            <th class="text-end">Subtotaal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Bestellingen)
+                        {
+                            <tr class="order-item-row">
+                                <td>
+                                    <span class="product-name">@item.ProductNaam</span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="quantity-badge">@item.Aantal×</span>
+                                </td>
+                                <td class="text-end">€ @item.Prijs.ToString("0.00")</td>
+                                <td class="text-end price-column">€ @item.Subtotaal.ToString("0.00")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <div class="order-total-footer">
+                    <span>
+                        <i class="bi bi-calculator-fill me-2"></i>Totaalbedrag
+                    </span>
+                    <span>€ @Model.Totaal.ToString("0.00")</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="@Url.Action("Menu", "Bestelling")" class="btn-new-order">
+                    <i class="bi bi-plus-circle me-2"></i>Nieuwe bestelling
+                </a>
+                <a href="@Url.Action("MyReservations", "Reservatie")" class="btn-my-reservations">
+                    <i class="bi bi-calendar-check me-2"></i>Mijn reservaties
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,22 @@
+﻿@using Restaurant.ViewModels.Gebruikers
+@model GebruikersDeactiverenViewModel
+
+@inject UserManager<CustomUser> UserManager
+@{
+	ViewData["Title"] = Model.Actief ? "Account deactiveren" : "Account activeren";
+}
+
+<h3>
+	Ben je zeker dat je de gebruiker @Model.Emailadres wilt
+	@(Model.Actief ? "deactiveren" : "activeren")?
+</h3>
+<p>Je kan dit later nog altijd aanpassen.</p>
+
+<form asp-action="DeactiverenConfirmed" asp-controller="Gebruikers" method="post">
+	<input type="hidden" asp-for="Id" />
+
+	<a asp-action="Index" asp-controller="Gebruikers" class="btn btn-secondary">
+		<i class="bi bi-arrow-left"></i> Annuleren
+	</a>
+	<button type="submit" class="btn @(Model.Actief ? "btn-danger" : "btn-success")">@(Model.Actief ? "Account deactiveren" : "Account activeren")</button>
+</form>

@@ -1,0 +1,89 @@
+﻿@model Restaurant.ViewModels.ProductDetailsViewModel
+
+@{
+    ViewData["Title"] = "Details van " + Model.Naam;
+}
+
+<div class="admin-page">
+
+    <div class="mb-4">
+        <a asp-controller="Gerechten" asp-action="Index" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left me-1"></i> Terug naar overzicht
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-4">
+
+            <h2 class="fw-bold mb-3">@Model.Naam</h2>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <p class="mb-2">
+                        <span class="text-muted">Categorie:</span><br/>
+                        <span class="badge text-bg-secondary-subtle text-dark px-3 py-2 mt-1">
+                            @Model.CategorieNaam
+                        </span>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-2">
+                        <span class="text-muted">Prijs:</span><br/>
+                        <span class="fw-bold fs-4 text-success">€ @Model.Prijs.ToString("0.00")</span>
+                    </p>
+                </div>
+            </div>
+
+            <hr />
+
+            <div class="mb-4">
+                <h5 class="fw-bold mb-2">Beschrijving</h5>
+                <p class="text-muted">
+                    @Model.Beschrijving
+                </p>
+            </div>
+
+            <div class="mb-3">
+                <h5 class="fw-bold mb-2">Allergenen</h5>
+                <p class="text-muted">@Model.AllergenenInfo</p>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <p class="mb-0">
+                        <span class="text-muted">Actief:</span>
+                        @if (Model.Actief)
+                        {
+                            <span class="badge text-bg-success-subtle text-success px-3 py-2 ms-2">
+                                <i class="bi bi-check-circle me-1"></i> Ja
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge text-bg-danger-subtle text-danger px-3 py-2 ms-2">
+                                <i class="bi bi-x-circle me-1"></i> Nee
+                            </span>
+                        }
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-0">
+                        <span class="text-muted">Suggestie:</span>
+                        @if (Model.IsSuggestie)
+                        {
+                            <span class="badge text-bg-primary-subtle px-3 py-2 ms-2">
+                                <i class="bi bi-stars me-1"></i> Ja
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge text-bg-light text-muted border px-3 py-2 ms-2">Nee</span>
+                        }
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,242 @@
+﻿@using Restaurant.ViewModels.Gebruiker
+@model GebruikerRegisterViewModel
+
+@{
+    ViewData["Title"] = "Registreren";
+}
+
+<style>
+    .auth-container {
+        min-height: 80vh;
+        padding: 2rem 0;
+    }
+
+    .auth-card {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .auth-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .auth-header h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .auth-header p {
+        margin: 0;
+        opacity: 0.9;
+    }
+
+    .auth-body {
+        padding: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e9ecef;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+        font-weight: 500;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-control, .form-select {
+        border: 2px solid #e9ecef;
+        border-radius: 0.5rem;
+        padding: 0.625rem;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+    }
+
+    .btn-register {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 0.875rem 2rem;
+        border-radius: 0.5rem;
+        width: 100%;
+        transition: all 0.3s;
+    }
+
+    .btn-register:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        color: white;
+    }
+
+    .auth-footer {
+        text-align: center;
+        padding: 1.5rem 2rem 2rem;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .auth-footer a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .auth-footer a:hover {
+        text-decoration: underline;
+    }
+
+    .required-indicator {
+        color: #dc3545;
+        margin-left: 0.25rem;
+    }
+</style>
+
+<div class="auth-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="auth-card">
+                    <div class="auth-header">
+                        <i class="bi bi-person-plus-fill" style="font-size: 3rem;"></i>
+                        <h1>Account aanmaken</h1>
+                        <p>Registreer om te kunnen reserveren en bestellen</p>
+                    </div>
+
+                    <div class="auth-body">
+                        <form id="registerForm" asp-controller="Gebruiker" asp-action="Register" method="post">
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-4 mb-3" role="alert"></div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="section-title">
+                                        <i class="bi bi-person"></i>
+                                        Persoonlijke gegevens
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label asp-for="Emailadres">
+                                            E-mailadres <span class="required-indicator">*</span>
+                                        </label>
+                                        <input asp-for="Emailadres" class="form-control" placeholder="naam@voorbeeld.be" />
+                                        <span asp-validation-for="Emailadres" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label asp-for="Password">
+                                            Wachtwoord <span class="required-indicator">*</span>
+                                        </label>
+                                        <input asp-for="Password" type="password" class="form-control" placeholder="Min. 10 karakters" />
+                                        <span asp-validation-for="Password" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label asp-for="ConfirmPassword">
+                                            Herhaal wachtwoord <span class="required-indicator">*</span>
+                                        </label>
+                                        <input asp-for="ConfirmPassword" type="password" class="form-control" />
+                                        <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label asp-for="Voornaam">Voornaam</label>
+                                        <input asp-for="Voornaam" class="form-control" />
+                                        <span asp-validation-for="Voornaam" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label asp-for="Achternaam">Achternaam</label>
+                                        <input asp-for="Achternaam" class="form-control" />
+                                        <span asp-validation-for="Achternaam" class="text-danger small"></span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="section-title">
+                                        <i class="bi bi-geo-alt"></i>
+                                        Adresgegevens
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label asp-for="Adres">Straat</label>
+                                        <input asp-for="Adres" class="form-control" />
+                                        <span asp-validation-for="Adres" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label asp-for="Huisnummer">Huisnummer</label>
+                                        <input asp-for="Huisnummer" class="form-control" />
+                                        <span asp-validation-for="Huisnummer" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label asp-for="Postcode">Postcode</label>
+                                        <input asp-for="Postcode" class="form-control" />
+                                        <span asp-validation-for="Postcode" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label asp-for="Gemeente">Gemeente</label>
+                                        <input asp-for="Gemeente" class="form-control" />
+                                        <span asp-validation-for="Gemeente" class="text-danger small"></span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label asp-for="LandId">
+                                            Land <span class="required-indicator">*</span>
+                                        </label>
+                                        <select asp-for="LandId" class="form-select" asp-items="Model.Landen">
+                                            <option value="">Selecteer een land</option>
+                                        </select>
+                                        <span asp-validation-for="LandId" class="text-danger small"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <button id="registerSubmit" type="submit" class="btn-register">
+                                        <i class="bi bi-check-circle me-2"></i>Account aanmaken
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="auth-footer">
+                        <p class="mb-2 text-muted">Heeft u al een account?</p>
+                        <a asp-action="Login" asp-controller="Gebruiker">
+                            <i class="bi bi-box-arrow-in-right me-1"></i>Aanmelden
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

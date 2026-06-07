@@ -1,0 +1,132 @@
+﻿@using Restaurant.ViewModels.Gebruikers
+@model GebruikersDetailsViewModel
+
+@inject UserManager<CustomUser> UserManager
+@{
+	ViewData["Title"] = $"Accountdetails bekijken";
+}
+
+<div class="admin-page">
+	<div class="row justify-content-center">
+		<div class="col-lg-10">
+			
+			<!-- header -->
+			<div class="admin-hero d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+				<div>
+					<h2 class="mb-1 fw-bold">Accountdetails bekijken</h2>
+				</div>
+
+				<a asp-action="Beheren" asp-route-id="@Model.Id" class="btn btn-light btn-lg">
+					<i class="bi bi-pencil me-1"></i> Bewerken
+				</a>
+			</div>
+
+			<div class="card shadow-sm border-0 rounded-4">
+				<div class="card-body p-4">
+					<div class="row g-4">
+						<div class="col-md-6">
+							<h4 class="fw-bold mb-3">
+								<i class="bi bi-info-circle me-2"></i> Persoonlijke Informatie
+							</h4>
+							<table class="table table-borderless">
+								<tbody>
+									<tr>
+										<td class="fw-semibold text-muted">
+											<i class="bi bi-envelope me-2"></i> Emailadres:
+										</td>
+										<td>
+											@(string.IsNullOrEmpty(Model.Emailadres) ? "/" : Model.Emailadres)
+										</td>
+									</tr>
+									<tr>
+										<td class="fw-semibold text-muted">
+											<i class="bi bi-person me-2"></i> Voornaam:
+										</td>
+										<td>@(string.IsNullOrEmpty(Model.Voornaam) ? "/" : Model.Voornaam)</td>
+									</tr>
+									<tr>
+										<td class="fw-semibold text-muted">
+											<i class="bi bi-person me-2"></i> Achternaam:
+										</td>
+										<td>@(string.IsNullOrEmpty(Model.Achternaam) ? "/" : Model.Achternaam)</td>
+									</tr>
+									<tr>
+										<td class="fw-semibold text-muted">
+											<i class="bi bi-geo-alt me-2"></i> Land:
+										</td>
+										<td>@(string.IsNullOrEmpty(Model.Land) ? "/" : Model.Land)</td>
+									</tr>
+									<tr>
+										<td class="fw-semibold text-muted">
+											<i class="bi bi-shield-check me-2"></i> Rollen:
+										</td>
+										<td>
+											@if (Model.Rollen?.Any() == true)
+											{
+												foreach (var rol in Model.Rollen)
+												{
+													<span class="badge text-bg-secondary-subtle text-dark px-3 py-2 me-1">@rol</span>
+												}
+											}
+											else
+											{
+												<span class="text-muted">Geen rollen</span>
+											}
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div class="col-md-6">
+							<h4 class="fw-bold mb-3">
+								<i class="bi bi-house me-2"></i> Adresgegevens
+							</h4>
+							<table class="table table-borderless">
+								<tbody>
+									<tr>
+										<td class="fw-semibold text-muted">
+											<i class="bi bi-signpost me-2"></i> Adres:
+										</td>
+										<td>@(string.IsNullOrEmpty(Model.Adres) ? "/" : Model.Adres)</td>
+									</tr>
+									<tr>
+										<td class="fw-semibold text-muted">
+											<i class="bi bi-house-door me-2"></i> Huisnummer:
+										</td>
+										<td>@(Model.Huisnummer == null ? "/" : Model.Huisnummer.ToString())</td>
+									</tr>
+									<tr>
+										<td class="fw-semibold text-muted">
+											<i class="bi bi-mailbox me-2"></i> Postcode:
+										</td>
+										<td>@(string.IsNullOrEmpty(Model.Postcode) ? "/" : Model.Postcode)</td>
+									</tr>
+									<tr>
+										<td class="fw-semibold text-muted">
+											<i class="bi bi-building me-2"></i> Gemeente:
+										</td>
+										<td>@(string.IsNullOrEmpty(Model.Gemeente) ? "/" : Model.Gemeente)</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+
+					<hr class="my-4" />
+
+					<div class="text-start">
+						<a asp-action="Index" asp-controller="Gebruikers" class="btn btn-outline-primary">
+							<i class="bi bi-arrow-left me-1"></i> Terug naar overzicht
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+}

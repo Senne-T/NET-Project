@@ -1,0 +1,183 @@
+@model ReservatieViewModel
+
+@{
+    ViewData["Title"] = "Reservatie Wijzigen";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">
+                        <i class="bi bi-pencil-square"></i> Reservatie Wijzigen
+                    </h2>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(Model.BeschikbaarheidsBericht) && !Model.IsBeschikbaar)
+                    {
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <strong>Let op!</strong> @Model.BeschikbaarheidsBericht
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    <form asp-action="Edit" method="post" id="reservatieForm">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Datum" class="form-label"></label>
+                            <input asp-for="Datum"
+                                   class="form-control"
+                                   type="date"
+                                   id="datumInput"
+                                   min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")"
+                                   max="@DateTime.Today.AddDays(Model.MaxDagenVooruitReserveren).ToString("yyyy-MM-dd")" />
+                            <span asp-validation-for="Datum" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="AantalPersonen" class="form-label"></label>
+                            <input asp-for="AantalPersonen"
+                                   class="form-control"
+                                   type="number"
+                                   min="@Model.MinPersonenPerReservatie"
+                                   id="aantalPersonenInput"
+                                   data-soft-max="@Model.MaxPersonenPerReservatie" />
+                            <span asp-validation-for="AantalPersonen" class="text-danger"></span>
+                        </div>
+
+                        <!-- Tijdslot beschikbaarheid -->
+                        <div class="mb-3">
+                            <label class="form-label">Beschikbare Tijdsloten</label>
+                            <div id="tijdslotBeschikbaarheid" class="row g-2">
+                                <div class="col-12 text-center">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Laden...</span>
+                                    </div>
+                                    <p class="mt-2">Beschikbaarheid wordt gecontroleerd...</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="TijdSlotId" class="form-label"></label>
+                            <select asp-for="TijdSlotId" asp-items="Model.TijdSlotOpties" class="form-select" id="tijdSlotSelect">
+                                <option value="">-- Selecteer een tijdslot --</option>
+                            </select>
+                            <span asp-validation-for="TijdSlotId" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Opmerking" class="form-label"></label>
+                            <textarea asp-for="Opmerking" class="form-control" rows="3" placeholder="Bijv. allergieën, speciale wensen..."></textarea>
+                            <span asp-validation-for="Opmerking" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-check-circle"></i> Wijzigen
+                            </button>
+                            <a asp-action="MyReservations" class="btn btn-outline-secondary">
+                                Annuleren
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function() {
+            // Laad beschikbaarheid bij wijzigingen
+            function laadBeschikbaarheid() {
+                var datum = $('#datumInput').val();
+                var aantalPersonen = parseInt($('#aantalPersonenInput').val());
+                var minPersonen = parseInt($('#aantalPersonenInput').attr('min'));
+                var softMax = parseInt($('#aantalPersonenInput').attr('data-soft-max'));
+
+                if (!datum || !aantalPersonen || aantalPersonen < minPersonen) {
+                    return;
+                }
+
+                checkAvailability(datum, aantalPersonen);
+            }
+
+            // Aparte functie voor AJAX call
+            function checkAvailability(datum, aantalPersonen) {
+                // Toon loading
+                $('#tijdslotBeschikbaarheid').html(`
+                    <div class="col-12 text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Laden...</span>
+                        </div>
+                        <p class="mt-2">Beschikbaarheid wordt gecontroleerd...</p>
+                    </div>
+                `);
+
+                $.ajax({
+                    url: '@Url.Action("GetTijdslotBeschikbaarheid", "Reservatie")',
+                    type: 'GET',
+                    data: { datum: datum, aantalPersonen: aantalPersonen },
+                    success: function(data) {
+                        if (data.error) {
+                            $('#tijdslotBeschikbaarheid').html(`
+                                <div class="col-12">
+                                    <div class="alert alert-danger">${data.error}</div>
+                                </div>
+                            `);
+                            return;
+                        }
+
+                        var html = '';
+
+                        data.forEach(function(tijdslot) {
+                            var badgeClass = tijdslot.isBeschikbaar ? 'bg-success' : 'bg-danger';
+                            var icon = tijdslot.isBeschikbaar ? 'check-circle' : 'x-circle';
+                            var status = tijdslot.isBeschikbaar ? 'Beschikbaar' : 'Niet beschikbaar';
+
+                            html += `
+                                <div class="col-md-6">
+                                    <div class="card ${tijdslot.isBeschikbaar ? 'border-success' : 'border-danger'}">
+                                        <div class="card-body">
+                                            <h6 class="card-title">
+                                                <i class="bi bi-${icon}"></i> ${tijdslot.naam}
+                                            </h6>
+                                            <span class="badge ${badgeClass}">${status}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        });
+
+                        $('#tijdslotBeschikbaarheid').html(html);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX Error:', status, error);
+                        $('#tijdslotBeschikbaarheid').html(`
+                            <div class="col-12">
+                                <div class="alert alert-danger">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                    <strong>Fout bij het ophalen van beschikbaarheid</strong>
+                                </div>
+                            </div>
+                        `);
+                    }
+                });
+            }
+
+            // Event listeners
+            $('#datumInput, #aantalPersonenInput').on('change', function() {
+                laadBeschikbaarheid();
+            });
+
+            // Laad initiële beschikbaarheid
+            laadBeschikbaarheid();
+        });
+    </script>
+}

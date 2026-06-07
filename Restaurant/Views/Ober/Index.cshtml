@@ -1,0 +1,378 @@
+@using Restaurant.ViewModels.Bestellingen
+@model IEnumerable<OrderListViewModel>
+
+<div class="admin-page">
+
+    <!-- header -->
+    <div class="admin-hero d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h2 class="mb-1 fw-bold">
+                Ober overzicht 
+                <span id="updateIndicator" class="badge bg-light text-dark ms-2" style="display:none;">Bijgewerkt</span>
+            </h2>
+        </div>
+
+        <button id="refreshBtn" class="btn btn-light btn-lg" onclick="refreshReadyOrders()">
+            <i class="bi bi-arrow-clockwise me-1"></i> Ververs
+        </button>
+    </div>
+
+    <!-- Groepeer bestellingen per tafel -->
+    <div id="ordersContainer">
+        @{
+            var bestellingenPerTafel = Model.GroupBy(o => o.TafelNummers ?? "Geen tafel")
+                                            .OrderBy(g => g.Key);
+        }
+
+        @foreach (var tafelGroep in bestellingenPerTafel)
+        {
+            var tafelBestellingIds = string.Join(",", tafelGroep.Select(o => o.BestellingId));
+            
+            <div class="card shadow-sm border-0 rounded-4 mb-3">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-table me-2"></i>@tafelGroep.Key
+                        <span class="badge bg-light text-dark ms-2">@tafelGroep.Count() item(s)</span>
+                    </h5>
+                    <button class="btn btn-light btn-sm" onclick="markAlleGeserveerd('@tafelBestellingIds')" title="Markeer alle items van deze tafel als geserveerd">
+                        <i class="bi bi-check-circle-fill me-1"></i> Alles Geserveerd
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">Product</th>
+                                    <th>Aantal</th>
+                                    <th>Opmerking</th>
+                                    <th>Status</th>
+                                    <th class="text-end pe-4">Acties</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var o in tafelGroep)
+                                {
+                                    <tr id="r-@o.BestellingId">
+                                        <td class="ps-4 fw-semibold">@o.ProductNaam</td>
+                                        <td>@o.Aantal</td>
+                                        <td>@o.Opmerking</td>
+                                        <td class="status-text">@o.Status</td>
+                                        <td class="text-end pe-4 action-cell">
+                                            <div class="d-flex justify-content-end gap-2 flex-wrap">
+                                                <button class="btn btn-outline-danger" onclick="markAnnuleer(@o.BestellingId)" title="Annuleren">
+                                                    <i class="bi bi-x-circle me-1"></i>Annuleren
+                                                </button>
+                                                <button class="btn btn-outline-secondary" onclick="markNietGestart(@o.BestellingId)" title="Niet Gestart">
+                                                    <i class="bi bi-pause-circle me-1"></i>Niet Gestart
+                                                </button>
+                                                <button class="btn btn-outline-primary" onclick="markInBehandeling(@o.BestellingId)" title="In Behandeling">
+                                                    <i class="bi bi-play-circle me-1"></i>In Behandeling
+                                                </button>
+                                                <button class="btn btn-outline-warning" onclick="markKlaar(@o.BestellingId)" title="Klaar">
+                                                    <i class="bi bi-check-circle me-1"></i>Klaar
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+</div>
+
+<!-- Toast container -->
+<div id="toastContainer" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080;"></div>
+
+<script src="~/lib/signalr/signalr.js"></script>
+<script>
+    const connection = new signalR.HubConnectionBuilder().withUrl("/orderHub").build();
+
+    // When status updates
+    connection.on("StatusUpdated", async (id, statusId) => {
+        // Bij elke statuswijzing: refresh de lijst om alles up-to-date te houden
+        await refreshReadyOrders();
+        
+        // Toon notificatie als iets klaar is
+        if (statusId === 2) {
+            showToast('Bestelling Klaar', `Bestelling ${id} is klaar.`);
+            playBeep();
+        }
+        
+        showUpdateIndicator();
+    });
+
+    // New: notify ober there was any DB change so they can refresh manually
+    connection.on("OrderChanged", (id, statusId) => {
+        showToast('Database gewijzigd', `Bestelling ${id} is aangepast. Klik 'Ververs' om de nieuwste lijst te zien.`, 8000);
+        showUpdateIndicator();
+    });
+
+    connection.start().catch(err => console.error(err));
+
+    // Status update functies (zoals bij Kok)
+    async function markInBehandeling(id) {
+        const res = await fetch('/Order/UpdateStatus', { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify({ id: id, statusId: 1 }) 
+        });
+        if (res.ok) { 
+            showUpdateIndicator(); 
+            await refreshReadyOrders(); 
+        }
+    }
+
+    async function markKlaar(id) {
+        const res = await fetch('/Order/UpdateStatus', { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify({ id: id, statusId: 2 }) 
+        });
+        if (res.ok) { 
+            showUpdateIndicator(); 
+            await refreshReadyOrders(); 
+        }
+    }
+
+    async function markNietGestart(id) {
+        const res = await fetch('/Order/UpdateStatus', { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify({ id: id, statusId: 5 }) 
+        });
+        if (res.ok) { 
+            showUpdateIndicator(); 
+            await refreshReadyOrders(); 
+        }
+    }
+
+    async function markAnnuleer(id) {
+        // Bevestigingsdialoog tonen
+        if (!confirm('Weet je zeker dat je deze bestelling wilt annuleren?')) {
+            return; // Annuleer actie als gebruiker op Cancel klikt
+        }
+        
+        const res = await fetch('/Order/UpdateStatus', { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify({ id: id, statusId: 4 }) 
+        });
+        if (res.ok) { 
+            showUpdateIndicator(); 
+            await refreshReadyOrders(); 
+        }
+    }
+
+    // Ober marks served
+    async function markServed(id) {
+        const res = await fetch('/Order/UpdateStatus', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id, statusId: 3 })
+        });
+        if (res.ok) {
+            showUpdateIndicator();
+            await refreshReadyOrders();
+        }
+    }
+
+    // Markeer alle bestellingen van een tafel als geserveerd
+    async function markAlleGeserveerd(bestellingIdsString) {
+        const ids = bestellingIdsString.split(',').map(id => parseInt(id.trim()));
+        
+        // Update alle bestellingen parallel
+        const promises = ids.map(id => 
+            fetch('/Order/UpdateStatus', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id, statusId: 3 })
+            })
+        );
+
+        try {
+            await Promise.all(promises);
+            showUpdateIndicator();
+            showToast('Tafel Geserveerd', `Alle ${ids.length} items zijn gemarkeerd als geserveerd.`);
+            await refreshReadyOrders();
+        } catch (e) {
+            console.error('Fout bij markeren als geserveerd:', e);
+            showToast('Fout', 'Er is een fout opgetreden bij het markeren.', 5000);
+        }
+    }
+
+    async function refreshReadyOrders() {
+        try {
+            const res = await fetch('/Order/GetOberOrders');
+            if (!res.ok) return;
+            const data = await res.json();
+            
+            const grouped = {};
+            data.forEach(o => {
+                const tafel = o.tafelNummers || 'Geen tafel';
+                if (!grouped[tafel]) {
+                    grouped[tafel] = [];
+                }
+                grouped[tafel].push(o);
+            });
+
+            const container = document.getElementById('ordersContainer');
+            container.innerHTML = '';
+
+            const sortedTafels = Object.keys(grouped).sort();
+
+            sortedTafels.forEach(tafel => {
+                const orders = grouped[tafel];
+                const bestellingIds = orders.map(o => o.bestellingId).join(',');
+                
+                const card = document.createElement('div');
+                card.className = 'card shadow-sm border-0 rounded-4 mb-3';
+                
+                const header = `
+                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-table me-2"></i>${tafel}
+                            <span class="badge bg-light text-dark ms-2">${orders.length} item(s)</span>
+                        </h5>
+                        <button class="btn btn-light" onclick="markAlleGeserveerd('${bestellingIds}')" title="Markeer alle items van deze tafel als geserveerd">
+                            <i class="bi bi-check-circle-fill me-1"></i> Alles Geserveerd
+                        </button>
+                    </div>
+                `;
+
+                let rows = '';
+                orders.forEach(o => {
+                    rows += `
+                        <tr id="r-${o.bestellingId}">
+                            <td class="ps-4 fw-semibold">${o.productNaam}</td>
+                            <td>${o.aantal}</td>
+                            <td>${o.opmerking ?? ''}</td>
+                            <td class="status-text">${o.status}</td>
+                            <td class="text-end pe-4 action-cell">
+                                <div class="d-flex justify-content-end gap-2 flex-wrap">
+                                    <button class="btn btn-outline-danger" onclick="markAnnuleer(${o.bestellingId})" title="Annuleren">
+                                        <i class="bi bi-x-circle me-1"></i>Annuleren
+                                    </button>
+                                    <button class="btn btn-outline-secondary" onclick="markNietGestart(${o.bestellingId})" title="Niet Gestart">
+                                        <i class="bi bi-pause-circle me-1"></i>Niet Gestart
+                                    </button>
+                                    <button class="btn btn-outline-primary" onclick="markInBehandeling(${o.bestellingId})" title="In Behandeling">
+                                        <i class="bi bi-play-circle me-1"></i>In Behandeling
+                                    </button>
+                                    <button class="btn btn-outline-warning" onclick="markKlaar(${o.bestellingId})" title="Klaar">
+                                        <i class="bi bi-check-circle me-1"></i>Klaar
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                const body = `
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-4">Product</th>
+                                        <th>Aantal</th>
+                                        <th>Opmerking</th>
+                                        <th>Status</th>
+                                        <th class="text-end pe-4">Acties</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${rows}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+
+                card.innerHTML = header + body;
+                container.appendChild(card);
+            });
+
+            showUpdateIndicator();
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    function getStatusNaam(statusId) { switch(statusId){ case 1: return 'In behandeling'; case 2: return 'Klaar'; case 3: return 'Geserveerd'; case 4: return 'Geannuleerd'; case 5: return 'Niet Gestart'; default: return 'Onbekend'; } }
+
+    // Toast and sound functions
+    function showToast(title, message, timeout = 5000) {
+        const container = document.getElementById('toastContainer');
+        const toastEl = document.createElement('div');
+        toastEl.className = 'toast align-items-center text-bg-dark border-0';
+        toastEl.setAttribute('role', 'alert');
+        toastEl.setAttribute('aria-live', 'assertive');
+        toastEl.setAttribute('aria-atomic', 'true');
+
+        toastEl.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    <strong>${title}</strong><br/>
+                    <small>${message}</small>
+                </div>  
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        `;
+
+        container.appendChild(toastEl);
+        const toast = new bootstrap.Toast(toastEl, { delay: timeout });
+        toast.show();
+
+        toastEl.addEventListener('hidden.bs.toast', () => {
+            toastEl.remove();
+        });
+    }
+
+    function playBeep() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const o = ctx.createOscillator();
+            const g = ctx.createGain();
+            o.type = 'sine';
+            o.frequency.setValueAtTime(880, ctx.currentTime);
+            g.gain.setValueAtTime(0.0001, ctx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + 0.01);
+            o.connect(g);
+            g.connect(ctx.destination);
+            o.start();
+            g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.5);
+            o.stop(ctx.currentTime + 0.6);
+        } catch (e) { console.error('Beep error', e); }
+    }
+
+    function showUpdateIndicator(duration = 3000) {
+        const el = document.getElementById('updateIndicator');
+        if (!el) return;
+        el.style.display = 'inline-block';
+        el.classList.add('fade-in');
+        clearTimeout(window._updateIndicatorTimeout);
+        window._updateIndicatorTimeout = setTimeout(() => {
+            el.style.display = 'none';
+            el.classList.remove('fade-in');
+        }, duration);
+    }
+
+    // Initial load
+    refreshReadyOrders();
+</script>
+
+<style>
+.fade-in {
+  animation: fade-in 0.4s ease-in-out;
+}
+@@keyframes fade-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>

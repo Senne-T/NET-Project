@@ -1,0 +1,70 @@
+@model Restaurant.ViewModels.Enquete.EnqueteViewModel
+
+@{
+    ViewData["Title"] = "Evaluatie Details";
+}
+
+<div class="container mt-4">
+    <h2>Evaluatie Details</h2>
+
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title"><i class="bi bi-receipt"></i> Reservatie #@Model.Id</h5>
+            
+            <table class="table table-borderless" style="border-collapse: collapse;">
+                <tbody>
+                    <tr>
+                        <td style="padding-right: 15px; vertical-align: top;"><i class="bi bi-calendar"></i> <strong>Datum:</strong></td>
+                        <td>@Model.Date?.ToString("dd/MM/yyyy")</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-right: 15px; vertical-align: top;"><i class="bi bi-person"></i> <strong>Klant:</strong></td>
+                        <td>@Model.CustomerName</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-right: 15px; vertical-align: top;"><i class="bi bi-telephone"></i> <strong>Telefoon:</strong></td>
+                        <td>@Model.Phone</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-right: 15px; vertical-align: top;"><i class="bi bi-envelope"></i> <strong>Email:</strong></td>
+                        <td>@Model.Email</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-right: 15px; vertical-align: top;"><i class="bi bi-star"></i> <strong>Score:</strong></td>
+                        <td>
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                if (i <= Model.Score)
+                                {
+                                    <i class="bi bi-star-fill text-warning"></i>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-star text-muted"></i>
+                                }
+                            }
+                            <span class="ms-2">(@Model.Score/5)</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding-right: 15px; vertical-align: top;"><i class="bi bi-chat-quote"></i> <strong>Opmerkingen:</strong></td>
+                        <td>
+                            <div class="alert alert-info text-break mb-0" role="alert">
+                                @if (!string.IsNullOrEmpty(Model.Comments))
+                                {
+                                    @Model.Comments
+                                }
+                                else
+                                {
+                                    <em>Geen opmerkingen achtergelaten.</em>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <a href="@Url.Action("AlleEvaluaties", "Enquete")" class="btn btn-secondary mt-3">Terug naar Overzicht</a>
+</div>

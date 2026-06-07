@@ -1,0 +1,458 @@
+﻿@model BestellingMenuViewModel
+@using Restaurant.ViewModels.Bestelling
+
+@{
+    ViewData["Title"] = "Bestel Menu";
+}
+
+<style>
+    .menu-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 3rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0 0 2rem 2rem;
+    }
+
+    .category-tabs {
+        border-bottom: 2px solid #e9ecef;
+        margin-bottom: 2rem;
+    }
+
+    .category-tab {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        background: none;
+        color: #6c757d;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+        border-bottom: 3px solid transparent;
+    }
+
+    .category-tab:hover {
+        color: #495057;
+    }
+
+    .category-tab.active {
+        color: #667eea;
+        border-bottom-color: #667eea;
+    }
+
+    .product-card {
+        transition: all 0.3s ease;
+        border: 2px solid #e9ecef;
+        border-radius: 1rem;
+        overflow: hidden;
+        height: 100%;
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        border-color: #667eea;
+    }
+
+    .product-price {
+        color: #28a745;
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+
+    .quantity-controls {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .quantity-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 2px solid #667eea;
+        background: white;
+        color: #667eea;
+        font-size: 1.25rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .quantity-btn:hover:not(:disabled) {
+        background: #667eea;
+        color: white;
+        transform: scale(1.1);
+    }
+
+    .quantity-btn:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+
+    .quantity-display {
+        min-width: 60px;
+        text-align: center;
+        font-size: 1.25rem;
+        font-weight: bold;
+        color: #495057;
+    }
+
+    .cart-summary {
+        position: -webkit-sticky;
+        position: sticky;
+        top: 90px;
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        padding: 1.5rem;
+        max-height: calc(100vh - 110px);
+        overflow-y: auto;
+        z-index: 100;
+    }
+
+    .cart-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .cart-item:last-child {
+        border-bottom: none;
+    }
+
+    .cart-total {
+        font-size: 1.75rem;
+        font-weight: bold;
+        color: #667eea;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 2px solid #667eea;
+    }
+
+    .search-box {
+        position: relative;
+        margin-bottom: 2rem;
+    }
+
+    .search-box input {
+        padding-left: 3rem;
+        border-radius: 2rem;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s;
+    }
+
+    .search-box input:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
+    .search-box i {
+        position: absolute;
+        left: 1.25rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+    }
+
+    .empty-cart {
+        text-align: center;
+        color: #6c757d;
+        padding: 2rem;
+    }
+
+    .product-selected {
+        border-color: #28a745 !important;
+        background-color: #f8fff9;
+    }
+</style>
+
+<div class="menu-header">
+    <div class="container">
+        <div class="text-center">
+            <h1 class="display-4 fw-bold mb-3">
+                <i class="bi bi-menu-button-wide"></i> Ons Menu
+            </h1>
+            <p class="lead">Ontdek onze heerlijke gerechten en dranken</p>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5">
+    @if (!Model.Items.Any())
+    {
+        <div class="alert alert-info rounded-4 text-center p-5">
+            <i class="bi bi-info-circle fs-1 d-block mb-3"></i>
+            <h4>Geen producten beschikbaar</h4>
+            <p class="mb-0">Er zijn momenteel geen producten beschikbaar. Probeer het later opnieuw.</p>
+        </div>
+    }
+    else
+    {
+        <form asp-action="Menu" method="post" id="menuForm">
+            <input type="hidden" asp-for="ReservatieId" />
+            
+            <div class="row">
+                <!-- Linker kolom: Menu items -->
+                <div class="col-lg-8">
+                    <!-- Zoekbalk -->
+                    <div class="search-box">
+                        <i class="bi bi-search"></i>
+                        <input type="text" 
+                               id="searchInput" 
+                               class="form-control form-control-lg" 
+                               placeholder="Zoek naar gerechten of dranken...">
+                    </div>
+
+                    <!-- Categorie tabs -->
+                    <div class="category-tabs mb-4">
+                        <button type="button" class="category-tab active" data-category="all">
+                            <i class="bi bi-grid-3x3"></i> Alles
+                        </button>
+                        @foreach (var categorie in Model.Items.GroupBy(i => i.CategorieNaam).Select(g => g.Key))
+                        {
+                            <button type="button" class="category-tab" data-category="@categorie">
+                                @switch(categorie)
+                                {
+                                    case "Dranken":
+                                        <i class="bi bi-cup-straw"></i>
+                                        break;
+                                    case "Gerechten":
+                                        <i class="bi bi-egg-fried"></i>
+                                        break;
+                                    case "Desserten":
+                                        <i class="bi bi-cake2"></i>
+                                        break;
+                                    default:
+                                        <i class="bi bi-star"></i>
+                                        break;
+                                }
+                                @categorie
+                            </button>
+                        }
+                    </div>
+
+                    <!-- Product grid -->
+                    <div class="row g-4" id="productGrid">
+                        @for (int i = 0; i < Model.Items.Count; i++)
+                        {
+                            var item = Model.Items[i];
+                            <div class="col-md-6 product-item" 
+                                 data-category="@item.CategorieNaam" 
+                                 data-name="@item.Naam.ToLower()"
+                                 data-index="@i">
+                                <div class="card product-card" id="card-@i">
+                                    <div class="card-body">
+                                        <h5 class="card-title fw-bold mb-2">@item.Naam</h5>
+                                        <p class="product-price mb-3">€ @item.Prijs.ToString("0.00")</p>
+                                        
+                                        <div class="quantity-controls">
+                                            <button type="button" 
+                                                    class="quantity-btn decrease-btn" 
+                                                    data-index="@i"
+                                                    disabled>
+                                                <i class="bi bi-dash"></i>
+                                            </button>
+                                            
+                                            <input type="hidden" 
+                                                   name="Items[@i].Aantal" 
+                                                   id="aantal-@i" 
+                                                   value="@Model.Items[i].Aantal" />
+                                            <input type="hidden" name="Items[@i].ItemId" value="@Model.Items[i].ItemId" />
+                                            <input type="hidden" name="Items[@i].IsDrank" value="@Model.Items[i].IsDrank" />
+                                            <input type="hidden" name="Items[@i].Naam" value="@Model.Items[i].Naam" />
+                                            <input type="hidden" name="Items[@i].CategorieNaam" value="@Model.Items[i].CategorieNaam" />
+                                            <input type="hidden" name="Items[@i].Prijs" value="@Model.Items[i].Prijs" />
+                                            
+                                            <span class="quantity-display" id="display-@i">0</span>
+                                            
+                                            <button type="button" 
+                                                    class="quantity-btn increase-btn" 
+                                                    data-index="@i">
+                                                <i class="bi bi-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Rechter kolom: Winkelwagen -->
+                <div class="col-lg-4">
+                    <div class="cart-summary">
+                        <h4 class="fw-bold mb-4">
+                            <i class="bi bi-cart3"></i> Uw Bestelling
+                        </h4>
+                        
+                        <div id="cartItems">
+                            <div class="empty-cart">
+                                <i class="bi bi-cart-x fs-1 d-block mb-2"></i>
+                                <p class="mb-0">Nog geen items geselecteerd</p>
+                            </div>
+                        </div>
+
+                        <div id="cartTotal" style="display: none;">
+                            <div class="cart-total">
+                                Totaal: <span id="totalAmount">€ 0.00</span>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary btn-lg w-100 mt-3">
+                                <i class="bi bi-check-circle me-2"></i> Bestelling plaatsen
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    }
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const items = @Html.Raw(Json.Serialize(Model.Items));
+            const quantities = {};
+            
+            // Initialize quantities
+            items.forEach((item, index) => {
+                quantities[index] = parseInt(document.getElementById('aantal-' + index).value) || 0;
+                updateDisplay(index);
+            });
+            
+            // Increase button handlers
+            document.querySelectorAll('.increase-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = this.dataset.index;
+                    quantities[index]++;
+                    updateQuantity(index);
+                });
+            });
+            
+            // Decrease button handlers
+            document.querySelectorAll('.decrease-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = this.dataset.index;
+                    if (quantities[index] > 0) {
+                        quantities[index]--;
+                        updateQuantity(index);
+                    }
+                });
+            });
+            
+            function updateQuantity(index) {
+                document.getElementById('aantal-' + index).value = quantities[index];
+                updateDisplay(index);
+                updateCart();
+            }
+            
+            function updateDisplay(index) {
+                const display = document.getElementById('display-' + index);
+                const decreaseBtn = document.querySelector('.decrease-btn[data-index="' + index + '"]');
+                const card = document.getElementById('card-' + index);
+                
+                display.textContent = quantities[index];
+                decreaseBtn.disabled = quantities[index] === 0;
+                
+                if (quantities[index] > 0) {
+                    card.classList.add('product-selected');
+                } else {
+                    card.classList.remove('product-selected');
+                }
+            }
+            
+            function updateCart() {
+                const cartItems = document.getElementById('cartItems');
+                const cartTotal = document.getElementById('cartTotal');
+                let html = '';
+                let total = 0;
+                let itemCount = 0;
+                
+                items.forEach((item, index) => {
+                    const qty = quantities[index];
+                    if (qty > 0) {
+                        const subtotal = qty * item.prijs;
+                        total += subtotal;
+                        itemCount++;
+                        
+                        html += `
+                            <div class="cart-item">
+                                <div>
+                                    <strong>${item.naam}</strong><br>
+                                    <small class="text-muted">${qty} × € ${item.prijs.toFixed(2)}</small>
+                                </div>
+                                <div class="text-end">
+                                    <strong>€ ${subtotal.toFixed(2)}</strong>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+                
+                if (itemCount === 0) {
+                    cartItems.innerHTML = `
+                        <div class="empty-cart">
+                            <i class="bi bi-cart-x fs-1 d-block mb-2"></i>
+                            <p class="mb-0">Nog geen items geselecteerd</p>
+                        </div>
+                    `;
+                    cartTotal.style.display = 'none';
+                } else {
+                    cartItems.innerHTML = html;
+                    document.getElementById('totalAmount').textContent = '€ ' + total.toFixed(2);
+                    cartTotal.style.display = 'block';
+                }
+            }
+            
+            // Category filter
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const category = this.dataset.category;
+                    document.querySelectorAll('.product-item').forEach(item => {
+                        if (category === 'all' || item.dataset.category === category) {
+                            item.style.display = '';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+            });
+            
+            // Search functionality
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                
+                document.querySelectorAll('.product-item').forEach(item => {
+                    const name = item.dataset.name;
+                    const category = item.dataset.category.toLowerCase();
+                    
+                    if (name.includes(searchTerm) || category.includes(searchTerm)) {
+                        item.style.display = '';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+                
+                // Reset category filter when searching
+                if (searchTerm) {
+                    document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelector('.category-tab[data-category="all"]').classList.add('active');
+                }
+            });
+            
+            // Initialize cart on page load
+            updateCart();
+        });
+    </script>
+}

@@ -1,0 +1,37 @@
+﻿@model Restaurant.ViewModels.Mail.MailViewModel
+
+<div class="container mt-4">
+    <h2>Sjabloon bewerken</h2>
+
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="Id" />
+
+        <div class="mb-3">
+            <label asp-for="Naam" class="form-label"></label>
+            <input asp-for="Naam" class="form-control" />
+            <span asp-validation-for="Naam" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Onderwerp" class="form-label"></label>
+            <input asp-for="Onderwerp" class="form-control" />
+            <span asp-validation-for="Onderwerp" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Body" class="form-label">Inhoud</label>
+            <textarea asp-for="Body" rows="8" class="form-control"></textarea>
+            <div class="form-text">
+                Beschikbare placeholders: [VOORNAAM], [ACHTERNAAM], [DATUM], [TIJD], [AANTAL], [TAFEL], [SURVEYLINK].
+            </div>
+            <span asp-validation-for="Body" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Opslaan</button>
+        <a asp-action="Index" class="btn btn-secondary">Annuleren</a>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

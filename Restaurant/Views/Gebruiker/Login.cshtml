@@ -1,0 +1,182 @@
+﻿@using Restaurant.ViewModels.Gebruiker
+@model GebruikerLoginViewModel
+
+@{
+    ViewData["Title"] = "Aanmelden";
+}
+
+<style>
+    .auth-container {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 0;
+    }
+
+    .auth-card {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        max-width: 450px;
+        width: 100%;
+        overflow: hidden;
+    }
+
+    .auth-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .auth-header h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .auth-header p {
+        margin: 0;
+        opacity: 0.9;
+    }
+
+    .auth-body {
+        padding: 2rem;
+    }
+
+    .form-floating {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-floating label {
+        color: #718096;
+    }
+
+    .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 0.5rem;
+        padding: 0.875rem;
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+    }
+
+    .btn-login {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 0.875rem;
+        border-radius: 0.5rem;
+        width: 100%;
+        transition: all 0.3s;
+    }
+
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        color: white;
+    }
+
+    .auth-footer {
+        text-align: center;
+        padding: 1.5rem 2rem 2rem;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .auth-footer a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .auth-footer a:hover {
+        text-decoration: underline;
+    }
+
+    .divider {
+        text-align: center;
+        margin: 1.5rem 0;
+        position: relative;
+    }
+
+    .divider::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        width: 100%;
+        height: 1px;
+        background: #e9ecef;
+    }
+
+    .divider span {
+        background: white;
+        padding: 0 1rem;
+        position: relative;
+        color: #718096;
+        font-size: 0.875rem;
+    }
+</style>
+
+<div class="auth-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="auth-card">
+                    <div class="auth-header">
+                        <i class="bi bi-person-circle" style="font-size: 3rem;"></i>
+                        <h1>Welkom terug</h1>
+                        <p>Meld u aan bij uw account</p>
+                    </div>
+
+                    <div class="auth-body">
+                        <form id="account" method="post">
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-4 mb-3" role="alert"></div>
+
+                            <div class="form-floating">
+                                <input asp-for="Emailadres" class="form-control" placeholder="naam@voorbeeld.be" aria-required="true" />
+                                <label asp-for="Emailadres">
+                                    <i class="bi bi-envelope me-2"></i>E-mailadres
+                                </label>
+                                <span asp-validation-for="Emailadres" class="text-danger small"></span>
+                            </div>
+
+                            <div class="form-floating">
+                                <input asp-for="Password" type="password" class="form-control" placeholder="Wachtwoord" aria-required="true" />
+                                <label asp-for="Password">
+                                    <i class="bi bi-lock me-2"></i>Wachtwoord
+                                </label>
+                                <span asp-validation-for="Password" class="text-danger small"></span>
+                            </div>
+
+                            <button id="login-submit" type="submit" class="btn-login">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>Aanmelden
+                            </button>
+
+                            <div class="text-center mt-3">
+                                <a asp-action="WachtwoordVergeten" asp-controller="Gebruiker">
+                                    <i class="bi bi-question-circle me-1"></i>Wachtwoord vergeten?
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="auth-footer">
+                        <p class="mb-2 text-muted">Nog geen account?</p>
+                        <a asp-action="Register" asp-controller="Gebruiker">
+                            <i class="bi bi-person-plus me-1"></i>Registreer nu
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,336 @@
+﻿@using Restaurant.ViewModels.Bestelling
+@model BestellingBevestigingViewModel
+
+@{
+    ViewData["Title"] = "Bestelling bevestigen";
+}
+
+<style>
+    .confirmation-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0 0 2rem 2rem;
+    }
+
+    .order-summary-card {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .order-summary-header {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        padding: 1.5rem;
+        border-bottom: 3px solid #667eea;
+    }
+
+    .order-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #e9ecef;
+        transition: background-color 0.3s;
+    }
+
+    .order-item:hover {
+        background-color: #f8f9fa;
+    }
+
+    .order-item:last-child {
+        border-bottom: none;
+    }
+
+    .item-info {
+        flex: 1;
+    }
+
+    .item-name {
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #2d3748;
+        margin-bottom: 0.25rem;
+    }
+
+    .item-details {
+        color: #718096;
+        font-size: 0.95rem;
+    }
+
+    .item-quantity {
+        background: #667eea;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 2rem;
+        font-weight: 600;
+        margin: 0 1rem;
+    }
+
+    .item-price {
+        font-weight: 700;
+        font-size: 1.25rem;
+        color: #28a745;
+        text-align: right;
+        min-width: 100px;
+    }
+
+    .order-total {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-confirm {
+        flex: 1;
+        min-width: 200px;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        color: white;
+        font-size: 1.1rem;
+        font-weight: 600;
+        padding: 1rem 2rem;
+        border-radius: 0.5rem;
+        transition: all 0.3s;
+    }
+
+    .btn-confirm:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
+        background: linear-gradient(135deg, #218838 0%, #1aa179 100%);
+    }
+
+    .btn-back {
+        flex: 1;
+        min-width: 200px;
+        background: white;
+        border: 2px solid #6c757d;
+        color: #6c757d;
+        font-size: 1.1rem;
+        font-weight: 600;
+        padding: 1rem 2rem;
+        border-radius: 0.5rem;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-back:hover {
+        background: #6c757d;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(108, 117, 125, 0.3);
+    }
+
+    .empty-order {
+        text-align: center;
+        padding: 3rem;
+        color: #6c757d;
+    }
+
+    .order-info-box {
+        background: #e7f3ff;
+        border-left: 4px solid #667eea;
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
+        border-radius: 0.5rem;
+    }
+
+    .category-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-left: 0.5rem;
+    }
+
+    .badge-drank {
+        background: #d1ecf1;
+        color: #0c5460;
+    }
+
+    .badge-gerecht {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .badge-dessert {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .badge-special {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    @@media (max-width: 768px) {
+        .order-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .item-price {
+            text-align: left;
+            font-size: 1.5rem;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .btn-confirm, .btn-back {
+            width: 100%;
+            min-width: auto;
+        }
+    }
+</style>
+
+<div class="confirmation-header">
+    <div class="container">
+        <div class="text-center">
+            <h1 class="display-5 fw-bold mb-2">
+                <i class="bi bi-clipboard-check"></i> Bevestig uw bestelling
+            </h1>
+            <p class="lead mb-0">Controleer uw bestelling voordat u deze plaatst</p>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            
+            <div class="order-info-box">
+                <i class="bi bi-info-circle me-2"></i>
+                <strong>Let op:</strong> Controleer uw bestelling zorgvuldig. Na bevestiging wordt uw bestelling doorgestuurd naar de keuken.
+            </div>
+
+            @if (!Model.Items.Any())
+            {
+                <div class="order-summary-card">
+                    <div class="empty-order">
+                        <i class="bi bi-cart-x fs-1 d-block mb-3"></i>
+                        <h4>Geen items geselecteerd</h4>
+                        <p class="mb-3">U heeft nog geen items toegevoegd aan uw bestelling.</p>
+                        <a asp-action="Menu" asp-route-reservatieId="@Model.ReservatieId" class="btn btn-primary">
+                            <i class="bi bi-arrow-left me-2"></i> Terug naar menu
+                        </a>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <form asp-action="Bevestiging" method="post">
+                    <input type="hidden" asp-for="ReservatieId" />
+
+                    <div class="order-summary-card">
+                        <div class="order-summary-header">
+                            <h4 class="mb-1 fw-bold">
+                                <i class="bi bi-receipt"></i> Uw bestelling
+                            </h4>
+                            <small class="text-muted">@Model.Items.Count item(s)</small>
+                        </div>
+
+                        <div>
+                            @for (int i = 0; i < Model.Items.Count; i++)
+                            {
+                                var item = Model.Items[i];
+                                var subtotal = item.Aantal * item.Prijs;
+                                
+                                <div class="order-item">
+                                    <input type="hidden" asp-for="Items[@i].Naam" />
+                                    <input type="hidden" asp-for="Items[@i].ItemId" />
+                                    <input type="hidden" asp-for="Items[@i].IsDrank" />
+                                    <input type="hidden" asp-for="Items[@i].Aantal" />
+                                    <input type="hidden" asp-for="Items[@i].Prijs" />
+                                    <input type="hidden" asp-for="Items[@i].CategorieNaam" />
+
+                                    <div class="item-info">
+                                        <div class="item-name">
+                                            @item.Naam
+                                            @switch(item.CategorieNaam)
+                                            {
+                                                case "Dranken":
+                                                    <span class="category-badge badge-drank">
+                                                        <i class="bi bi-cup-straw"></i> Drank
+                                                    </span>
+                                                    break;
+                                                case "Gerechten":
+                                                    <span class="category-badge badge-gerecht">
+                                                        <i class="bi bi-egg-fried"></i> Gerecht
+                                                    </span>
+                                                    break;
+                                                case "Desserten":
+                                                    <span class="category-badge badge-dessert">
+                                                        <i class="bi bi-cake2"></i> Dessert
+                                                    </span>
+                                                    break;
+                                                default:
+                                                    <span class="category-badge badge-special">
+                                                        <i class="bi bi-star"></i> Specialiteit
+                                                    </span>
+                                                    break;
+                                            }
+                                        </div>
+                                        <div class="item-details">
+                                            @item.Aantal × € @item.Prijs.ToString("0.00")
+                                        </div>
+                                    </div>
+                                    
+                                    <span class="item-quantity">@item.Aantal×</span>
+                                    
+                                    <div class="item-price">
+                                        € @subtotal.ToString("0.00")
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        <div class="order-total">
+                            <span>
+                                <i class="bi bi-calculator me-2"></i> Totaalbedrag
+                            </span>
+                            <span>
+                                € @Model.Totaal.ToString("0.00")
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button type="submit" class="btn btn-confirm">
+                            <i class="bi bi-check-circle me-2"></i> Bestelling bevestigen
+                        </button>
+                        <a asp-action="Menu" asp-route-reservatieId="@Model.ReservatieId" class="btn-back">
+                            <i class="bi bi-arrow-left me-2"></i> Terug naar menu
+                        </a>
+                    </div>
+                </form>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

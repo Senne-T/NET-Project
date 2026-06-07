@@ -1,0 +1,301 @@
+﻿@using Restaurant.ViewModels.Gebruiker
+@model GebruikerEditViewModel
+
+@inject UserManager<CustomUser> UserManager
+@{
+    ViewData["Title"] = "Account beheren";
+}
+
+<style>
+    .account-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0 0 1.5rem 1.5rem;
+        text-align: center;
+    }
+
+    .account-hero h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .account-hero p {
+        font-size: 1rem;
+        margin-bottom: 0;
+        opacity: 0.95;
+    }
+
+    .account-card {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .account-body {
+        padding: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e9ecef;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+        font-weight: 500;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-control, .form-select {
+        border: 2px solid #e9ecef;
+        border-radius: 0.5rem;
+        padding: 0.625rem;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+    }
+
+    .action-buttons {
+        display: grid;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+    }
+
+    .btn-save {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 0.875rem;
+        border-radius: 0.5rem;
+        transition: all 0.3s;
+    }
+
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        color: white;
+    }
+
+    .btn-password {
+        background: white;
+        border: 2px solid #ffc107;
+        color: #ffc107;
+        font-weight: 600;
+        padding: 0.875rem;
+        border-radius: 0.5rem;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: block;
+        text-align: center;
+    }
+
+    .btn-password:hover {
+        background: #ffc107;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 193, 7, 0.3);
+    }
+
+    .btn-delete {
+        background: white;
+        border: 2px solid #dc3545;
+        color: #dc3545;
+        font-weight: 600;
+        padding: 0.875rem;
+        border-radius: 0.5rem;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: block;
+        text-align: center;
+    }
+
+    .btn-delete:hover {
+        background: #dc3545;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+    }
+
+    .btn-cancel {
+        background: #f8f9fa;
+        border: 2px solid #e9ecef;
+        color: #6c757d;
+        font-weight: 600;
+        padding: 0.875rem;
+        border-radius: 0.5rem;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: block;
+        text-align: center;
+    }
+
+    .btn-cancel:hover {
+        background: #e9ecef;
+        color: #495057;
+    }
+
+    .required-indicator {
+        color: #dc3545;
+        margin-left: 0.25rem;
+    }
+</style>
+
+<div class="account-hero">
+    <div class="container">
+        <i class="bi bi-person-gear" style="font-size: 3rem;"></i>
+        <h1>Account Beheren</h1>
+        <p>Pas uw accountgegevens aan</p>
+    </div>
+</div>
+
+<div class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="account-card">
+                <div class="account-body">
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show rounded-4 mb-3" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <strong>@TempData["Error"]</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <form id="beherenForm" asp-controller="Gebruiker" asp-action="Beheren" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-4 mb-3" role="alert"></div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="section-title">
+                                    <i class="bi bi-person"></i>
+                                    Persoonlijke gegevens
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="Emailadres">
+                                        E-mailadres <span class="required-indicator">*</span>
+                                    </label>
+                                    <input asp-for="Emailadres" class="form-control" />
+                                    <span asp-validation-for="Emailadres" class="text-danger small"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="Voornaam">Voornaam</label>
+                                    <input asp-for="Voornaam" class="form-control" />
+                                    <span asp-validation-for="Voornaam" class="text-danger small"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="Achternaam">Achternaam</label>
+                                    <input asp-for="Achternaam" class="form-control" />
+                                    <span asp-validation-for="Achternaam" class="text-danger small"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="LandId">
+                                        Land <span class="required-indicator">*</span>
+                                    </label>
+                                    <select asp-for="LandId" class="form-select" asp-items="Model.Landen">
+                                        <option value="">Selecteer een land</option>
+                                    </select>
+                                    <span asp-validation-for="LandId" class="text-danger small"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="section-title">
+                                    <i class="bi bi-geo-alt"></i>
+                                    Adresgegevens
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="Adres">Straat</label>
+                                    <input asp-for="Adres" class="form-control" />
+                                    <span asp-validation-for="Adres" class="text-danger small"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="Huisnummer">Huisnummer</label>
+                                    <input asp-for="Huisnummer" class="form-control" />
+                                    <span asp-validation-for="Huisnummer" class="text-danger small"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="Postcode">Postcode</label>
+                                    <input asp-for="Postcode" class="form-control" />
+                                    <span asp-validation-for="Postcode" class="text-danger small"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label asp-for="Gemeente">Gemeente</label>
+                                    <input asp-for="Gemeente" class="form-control" />
+                                    <span asp-validation-for="Gemeente" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <div class="action-buttons">
+                                    <button id="beherenSubmit" type="submit" class="btn-save">
+                                        <i class="bi bi-check-circle me-2"></i>Wijzigingen Opslaan
+                                    </button>
+
+                                    <a asp-action="WachtwoordBeheren" asp-route-id="@UserManager.GetUserId(User)" class="btn-password">
+                                        <i class="bi bi-key me-2"></i>Wachtwoord Wijzigen
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="action-buttons">
+                                    @if (!User.IsInRole("Eigenaar"))
+                                    {
+                                        <a asp-action="Delete" asp-route-id="@UserManager.GetUserId(User)" class="btn-delete">
+                                            <i class="bi bi-trash me-2"></i>Account Verwijderen
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <div class="alert alert-info mb-0 py-2" role="alert">
+                                            <i class="bi bi-info-circle me-2"></i>
+                                            <small>Als eigenaar kunt u uw account niet verwijderen</small>
+                                        </div>
+                                    }
+
+                                    <a asp-action="Index" asp-controller="Home" class="btn-cancel">
+                                        <i class="bi bi-x-circle me-2"></i>Annuleren
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,110 @@
+@model Restaurant.ViewModels.Tafel.TafelDetailsViewModel
+
+@{
+    ViewData["Title"] = "Tafel details";
+}
+
+<div class="admin-page">
+    <div class="mb-4">
+        <a asp-action="Index" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left me-1"></i> Terug naar overzicht
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-4">
+            <h2 class="fw-bold mb-3">
+                <i class="bi bi-table me-2"></i>@Model.TafelNummer
+            </h2>
+
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-5 text-muted">Tafelnummer:</dt>
+                        <dd class="col-sm-7 fw-semibold">@Model.TafelNummer</dd>
+
+                        <dt class="col-sm-5 text-muted">Capaciteit:</dt>
+                        <dd class="col-sm-7">
+                            <i class="bi bi-people me-1"></i>
+                            @Model.MinAantalPersonen - @Model.AantalPersonen personen
+                        </dd>
+
+                        <dt class="col-sm-5 text-muted">Status:</dt>
+                        <dd class="col-sm-7">
+                            @if (Model.Actief)
+                            {
+                                <span class="badge text-bg-success-subtle text-success px-3 py-2">
+                                    <i class="bi bi-check-circle me-1"></i> Actief
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge text-bg-secondary-subtle text-secondary px-3 py-2">
+                                    <i class="bi bi-x-circle me-1"></i> Inactief
+                                </span>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-5 text-muted">QR Code / Barcode:</dt>
+                        <dd class="col-sm-7">
+                            @if (!string.IsNullOrEmpty(Model.QrBarcode))
+                            {
+                                <i class="bi bi-qr-code me-1"></i>
+                                <code class="text-dark">@Model.QrBarcode</code>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Niet ingesteld</span>
+                            }
+                        </dd>
+                    </dl>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card bg-light border-0">
+                        <div class="card-body">
+                            <h5 class="card-title fw-semibold">
+                                <i class="bi bi-info-circle me-2"></i>Informatie
+                            </h5>
+                            <p class="mb-2">
+                                <strong>Capaciteit:</strong> Deze tafel is geschikt voor groepen van 
+                                @Model.MinAantalPersonen tot @Model.AantalPersonen personen.
+                            </p>
+                            <p class="mb-2">
+                                <strong>Status:</strong> 
+                                @if (Model.Actief)
+                                {
+                                    <span>Deze tafel is actief en kan gebruikt worden voor nieuwe reservaties.</span>
+                                }
+                                else
+                                {
+                                    <span>Deze tafel is inactief en kan niet gebruikt worden voor nieuwe reservaties.</span>
+                                }
+                            </p>
+                            @if (!string.IsNullOrEmpty(Model.QrBarcode))
+                            {
+                                <p class="mb-0">
+                                    <strong>QR Code:</strong> Kan gebruikt worden voor digitale bestelsystemen of tafelsignalering.
+                                </p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4" />
+
+            <div class="d-flex gap-2">
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                    <i class="bi bi-pencil me-1"></i> Bewerken
+                </a>
+                <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">
+                    <i class="bi bi-trash me-1"></i> Verwijderen
+                </a>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left me-1"></i> Terug naar overzicht
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

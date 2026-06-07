@@ -1,0 +1,284 @@
+﻿@using Restaurant.ViewModels.Gebruikers
+@model GebruikersListViewModel
+
+@{
+	ViewData["Title"] = "Gebruikers overzicht";
+}
+
+<div class="admin-page">
+
+	<!-- header -->
+	<div class="admin-hero d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+		<div>
+			<h2 class="mb-1 fw-bold">Gebruikers beheren</h2>
+		</div>
+
+		<a asp-action="Create" class="btn btn-success btn-lg">
+			<i class="bi bi-person-plus me-1"></i> Nieuwe gebruiker toevoegen
+		</a>
+	</div>
+
+	<!-- filter card -->
+	<div class="card shadow-sm border-0 rounded-4 mb-4">
+		<div class="card-body">
+			<form asp-controller="Gebruikers" asp-action="Search" method="get">
+				<div class="row g-3 align-items-end">
+
+					<!-- 🔍 Search -->
+					<div class="col-md-4">
+						<label class="form-label">Zoeken</label>
+						<input type="text"
+							   name="Search"
+							   value="@Model.Search"
+							   class="form-control"
+							   placeholder="Naam of e-mail..." />
+					</div>
+
+					<!-- 🔘 Actief -->
+					<div class="col-md-2">
+						<label class="form-label">Status</label>
+						<select name="Actief" class="form-select">
+							<option value="">Alles</option>
+							<option value="true" selected="@(Model.Actief == true)">Actief</option>
+							<option value="false" selected="@(Model.Actief == false)">Inactief</option>
+						</select>
+					</div>
+
+					<!-- 👥 Type -->
+					<div class="col-md-2">
+						<label class="form-label">Type</label>
+						<select name="Type" class="form-select">
+							<option value="Werknemers" selected="@(Model.Type == "Werknemers")">Werknemers</option>
+							<option value="Klanten" selected="@(Model.Type == "Klanten")">Klanten</option>
+							<option value="Geen rol" selected="@(Model.Type == "Geen rol")">Geen rol</option>
+						</select>
+					</div>
+
+					<!-- 🔄 Acties -->
+					<div class="col-md-4 d-flex gap-2">
+						<a asp-action="Index" class="btn btn-primary"> 
+							<i class="bi bi-list me-1"></i> Alle Werkenemers tonen
+						</a>
+
+						<button type="submit" class="btn btn-success">
+							<i class="bi bi-funnel me-1"></i> Filter
+						</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	@if (TempData["Success"] != null)
+	{
+		<div class="alert alert-success alert-dismissible fade show">
+			<i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+	}
+
+	@if (TempData["Error"] != null)
+	{
+		<div class="alert alert-danger alert-dismissible fade show">
+			<i class="bi bi-exclamation-triangle me-2"></i>@TempData["Error"]
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+	}
+
+	<!-- table card -->
+	<div class="card shadow-sm border-0 rounded-4">
+		<div class="card-body p-0">
+			<div class="table-responsive">
+				<table class="table table-hover align-middle mb-0">
+					<thead class="table-light">
+						<tr>
+							<th class="ps-4">Achternaam</th>
+							<th>Rollen</th>
+							<th>Emailadres</th>
+							<th>Status</th>
+							<th class="text-end pe-4">Acties</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var gebruiker in Model.Gebruikers)
+						{
+							<tr>
+								<td class="ps-4 fw-semibold">@(gebruiker.Achternaam ?? "/")</td>
+								<td>
+									@if (gebruiker.Rollen?.Any() == true)
+									{
+										foreach (var rol in gebruiker.Rollen)
+										{
+											<span class="badge text-bg-secondary-subtle text-dark px-3 py-2 me-1">@rol</span>
+										}
+									}
+									else
+									{
+										<span class="text-muted">Geen rollen</span>
+									}
+								</td>
+								<td>@Html.DisplayFor(modelitem => gebruiker.Emailadres)</td>
+								<td>
+									@if (gebruiker.Actief)
+									{
+										<span class="badge text-bg-success-subtle text-success px-3 py-2">Actief</span>
+									}
+									else
+									{
+										<span class="badge text-bg-danger-subtle text-danger px-3 py-2">Inactief</span>
+									}
+								</td>
+								<td class="text-end pe-4">
+									<div class="d-flex justify-content-end gap-2 action-buttons">
+										<a asp-action="Details" asp-route-id="@gebruiker.Id" class="btn btn-outline-primary btn-sm">
+											<i class="bi bi-eye"></i>
+										</a>
+
+										<button type="button" 
+												class="btn @(gebruiker.Actief ? "btn-outline-danger" : "btn-outline-success") btn-sm"
+												data-bs-toggle="modal" 
+												data-bs-target="#deactiveerModal"
+												data-user-id="@gebruiker.Id"
+												data-user-name="@gebruiker.Achternaam"
+												data-is-active="@gebruiker.Actief.ToString().ToLower()">
+											<i class="bi bi-@(gebruiker.Actief ? "x-circle" : "check-circle")"></i>
+										</button>
+
+										<button type="button" 
+												class="btn btn-outline-danger btn-sm"
+												data-bs-toggle="modal" 
+												data-bs-target="#deleteModal"
+												data-user-id="@gebruiker.Id"
+												data-user-name="@gebruiker.Achternaam">
+											<i class="bi bi-trash"></i>
+										</button>
+									</div>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+</div>
+
+<!-- Deactiveren Modal -->
+<div class="modal fade" id="deactiveerModal" tabindex="-1" aria-labelledby="deactiveerModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="deactiveerModalLabel">
+					<i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>
+					<span id="deactiveerModalTitle">Status wijzigen</span>
+				</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<p id="deactiveerModalText">Weet u zeker dat u deze actie wilt uitvoeren?</p>
+				<div class="alert alert-info mb-0">
+					<i class="bi bi-info-circle me-2"></i>
+					<span id="deactiveerModalInfo">Deze actie kan later ongedaan worden gemaakt.</span>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+					<i class="bi bi-x-lg me-1"></i> Annuleren
+				</button>
+				<form id="deactiveerForm" method="post" style="display: inline;">
+					@Html.AntiForgeryToken()
+					<button type="submit" class="btn" id="deactiveerConfirmBtn">
+						<i class="bi bi-check-lg me-1"></i> Bevestigen
+					</button>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header bg-danger text-white">
+				<h5 class="modal-title" id="deleteModalLabel">
+					<i class="bi bi-trash-fill me-2"></i>
+					Gebruiker verwijderen
+				</h5>
+				<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<p>Weet u zeker dat u <strong id="deleteUserName"></strong> wilt verwijderen?</p>
+				<div class="alert alert-danger mb-0">
+					<i class="bi bi-exclamation-triangle-fill me-2"></i>
+					<strong>Let op:</strong> Deze actie kan niet ongedaan worden gemaakt. Alle persoonlijke gegevens worden permanent verwijderd.
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+					<i class="bi bi-x-lg me-1"></i> Annuleren
+				</button>
+				<form id="deleteForm" method="post" style="display: inline;">
+					@Html.AntiForgeryToken()
+					<button type="submit" class="btn btn-danger">
+						<i class="bi bi-trash-fill me-1"></i> Definitief verwijderen
+					</button>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+	<script>
+		// Deactiveren Modal
+		const deactiveerModal = document.getElementById('deactiveerModal');
+		if (deactiveerModal) {
+			deactiveerModal.addEventListener('show.bs.modal', function (event) {
+				const button = event.relatedTarget;
+				const userId = button.getAttribute('data-user-id');
+				const userName = button.getAttribute('data-user-name');
+				const isActive = button.getAttribute('data-is-active') === 'true';
+
+				const form = document.getElementById('deactiveerForm');
+				const title = document.getElementById('deactiveerModalTitle');
+				const text = document.getElementById('deactiveerModalText');
+				const info = document.getElementById('deactiveerModalInfo');
+				const confirmBtn = document.getElementById('deactiveerConfirmBtn');
+
+				form.action = '@Url.Action("DeactiverenConfirmed", "Gebruikers")'.replace('DeactiverenConfirmed', 'DeactiverenConfirmed') + '?id=' + userId;
+
+				if (isActive) {
+					title.textContent = 'Gebruiker deactiveren';
+					text.innerHTML = 'Weet u zeker dat u <strong>' + userName + '</strong> wilt deactiveren?';
+					info.textContent = 'Een gedeactiveerde gebruiker kan niet meer inloggen, maar kan later weer geactiveerd worden.';
+					confirmBtn.className = 'btn btn-warning';
+					confirmBtn.innerHTML = '<i class="bi bi-x-circle me-1"></i> Deactiveren';
+				} else {
+					title.textContent = 'Gebruiker activeren';
+					text.innerHTML = 'Weet u zeker dat u <strong>' + userName + '</strong> wilt activeren?';
+					info.textContent = 'Een geactiveerde gebruiker kan weer inloggen in het systeem.';
+					confirmBtn.className = 'btn btn-success';
+					confirmBtn.innerHTML = '<i class="bi bi-check-circle me-1"></i> Activeren';
+				}
+			});
+		}
+
+		// Delete Modal
+		const deleteModal = document.getElementById('deleteModal');
+		if (deleteModal) {
+			deleteModal.addEventListener('show.bs.modal', function (event) {
+				const button = event.relatedTarget;
+				const userId = button.getAttribute('data-user-id');
+				const userName = button.getAttribute('data-user-name');
+
+				const form = document.getElementById('deleteForm');
+				const userNameSpan = document.getElementById('deleteUserName');
+
+				form.action = '@Url.Action("DeleteConfirmed", "Gebruikers")'.replace('DeleteConfirmed', 'DeleteConfirmed') + '?id=' + userId;
+				userNameSpan.textContent = userName;
+			});
+		}
+	</script>
+}

@@ -1,0 +1,94 @@
+@model Restaurant.ViewModels.Tafel.TafelDeleteViewModel
+
+@{
+    ViewData["Title"] = "Tafel verwijderen";
+}
+
+<div class="admin-page">
+    <div class="mb-4">
+        <a asp-action="Index" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left me-1"></i> Terug naar overzicht
+        </a>
+    </div>
+
+    <div class="alert alert-danger border-0 shadow-sm">
+        <h5 class="alert-heading fw-bold">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>Waarschuwing
+        </h5>
+        <p class="mb-0">
+            Weet u zeker dat u deze tafel wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt!
+        </p>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-4">
+            <h2 class="fw-bold mb-4 text-danger">
+                <i class="bi bi-trash me-2"></i>Tafel verwijderen
+            </h2>
+
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="card border-danger">
+                        <div class="card-header bg-danger text-white">
+                            <h5 class="mb-0 fw-semibold">
+                                <i class="bi bi-table me-2"></i>Tafel informatie
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-5 text-muted">Tafelnummer:</dt>
+                                <dd class="col-sm-7 fw-semibold">@Model.TafelNummer</dd>
+
+                                <dt class="col-sm-5 text-muted">Capaciteit:</dt>
+                                <dd class="col-sm-7">
+                                    <i class="bi bi-people me-1"></i>
+                                    @Model.MinAantalPersonen - @Model.AantalPersonen personen
+                                </dd>
+
+                                <dt class="col-sm-5 text-muted">Status:</dt>
+                                <dd class="col-sm-7 mb-0">
+                                    @if (Model.Actief)
+                                    {
+                                        <span class="badge text-bg-success-subtle text-success px-3 py-2">Actief</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge text-bg-secondary-subtle text-secondary px-3 py-2">Inactief</span>
+                                    }
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="alert alert-warning border-0">
+                        <h6 class="alert-heading fw-bold">
+                            <i class="bi bi-info-circle me-2"></i>Let op
+                        </h6>
+                        <ul class="mb-0">
+                            <li class="mb-2">Bestaande reservaties met deze tafel blijven bewaard</li>
+                            <li class="mb-2">De tafel kan niet meer gebruikt worden voor nieuwe reservaties</li>
+                            <li class="mb-0">Overweeg de tafel op "Inactief" te zetten in plaats van te verwijderen</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4" />
+
+            <form asp-action="Delete" method="post">
+                <input type="hidden" asp-for="Id" />
+                
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-danger btn-lg">
+                        <i class="bi bi-trash-fill me-1"></i> Ja, verwijder deze tafel
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary btn-lg">
+                        <i class="bi bi-x-lg me-1"></i> Nee, annuleren
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

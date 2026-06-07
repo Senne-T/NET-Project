@@ -1,0 +1,351 @@
+@model Restaurant.ViewModels.Reservatie.AfrekeningViewModel
+
+@{
+    ViewData["Title"] = "Betaling verwerken";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-credit-card"></i> Betaling verwerken
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5>Klantgegevens</h5>
+                            <p class="mb-1"><strong>Naam:</strong> @Model.KlantNaam</p>
+                            <p class="mb-1"><strong>Datum:</strong> @Model.Datum?.ToString("dd/MM/yyyy")</p>
+                            <p class="mb-1"><strong>Tijdslot:</strong> @Model.Tijdslot</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Reservatiedetails</h5>
+                            <p class="mb-1"><strong>Tafel(s):</strong> @Model.Tafels</p>
+                            <p class="mb-1"><strong>Aantal personen:</strong> @Model.AantalPersonen</p>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <h5 class="mb-3">Bestellingen</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="bestellingenTable">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th class="text-center">Aantal</th>
+                                    <th class="text-end">Prijs</th>
+                                    <th class="text-end">Subtotaal</th>
+                                    <th class="text-center">Acties</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var regel in Model.Regels)
+                                {
+                                    <tr data-product-naam="@regel.ProductNaam" data-huidig-aantal="@regel.Aantal" data-prijs="@regel.Prijs">
+                                        <td class="product-naam">@regel.ProductNaam</td>
+                                        <td class="text-center aantal-cell">@regel.Aantal</td>
+                                        <td class="text-end prijs-cell">€@regel.Prijs.ToString("F2")</td>
+                                        <td class="text-end subtotaal-cell">€@regel.Subtotaal.ToString("F2")</td>
+                                        <td class="text-center">
+                                            <button type="button" 
+                                                    class="btn btn-sm btn-primary wijzig-aantal-btn" 
+                                                    data-product-naam="@regel.ProductNaam"
+                                                    data-huidig-aantal="@regel.Aantal"
+                                                    data-prijs="@regel.Prijs">
+                                                <i class="bi bi-pencil"></i> Wijzig
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="3" class="text-end">Excl. BTW:</th>
+                                    <th class="text-end" id="subtotaal">€@Model.Subtotaal.ToString("F2")</th>
+                                    <th></th>
+                                </tr>
+                                <tr>
+                                    <th colspan="3" class="text-end">BTW (21%):</th>
+                                    <th class="text-end" id="btw">€@Model.BTW.ToString("F2")</th>
+                                    <th></th>
+                                </tr>
+                                <tr class="table-primary">
+                                    <th colspan="3" class="text-end">Totaal incl. BTW:</th>
+                                    <th class="text-end fs-5" id="totaal">€@Model.Totaal.ToString("F2")</th>
+                                    <th></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <hr />
+
+                    <form asp-action="Afrekenen" method="post">
+                        <input type="hidden" name="reservatieId" value="@Model.ReservatieId" />
+
+                        <div class="mb-4">
+                            <label class="form-label"><strong>Betaalmethode</strong></label>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="betaalmethode" 
+                                               value="Cash" id="radioCash" checked required />
+                                        <label class="form-check-label" for="radioCash">
+                                            <i class="bi bi-cash-coin"></i> Cash
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="betaalmethode" 
+                                               value="Payconiq" id="radioPayconiq" required />
+                                        <label class="form-check-label" for="radioPayconiq">
+                                            <i class="bi bi-phone"></i> Payconiq
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> 
+                            <strong>Let op:</strong> Na bevestiging wordt de factuur als betaald gemarkeerd en ontvangt de klant een bedankmail met factuur en enquête-link.
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Factuur" asp-route-id="@Model.ReservatieId" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Annuleren
+                            </a>
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-check-circle"></i> Betaling bevestigen
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal voor aantal wijzigen -->
+<div class="modal fade" id="wijzigAantalModal" tabindex="-1" aria-labelledby="wijzigAantalModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="wijzigAantalModalLabel">
+                    <i class="bi bi-pencil-square"></i> Aantal wijzigen
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Product:</label>
+                    <p id="modalProductNaam" class="text-muted"></p>
+                </div>
+                <div class="mb-3">
+                    <label for="modalAantalInput" class="form-label">Nieuw aantal:</label>
+                    <div class="input-group">
+                        <button class="btn btn-outline-secondary" type="button" id="decrementBtn">
+                            <i class="bi bi-dash"></i>
+                        </button>
+                        <input type="number" 
+                               class="form-control text-center" 
+                               id="modalAantalInput" 
+                               min="0" 
+                               value="0">
+                        <button class="btn btn-outline-secondary" type="button" id="incrementBtn">
+                            <i class="bi bi-plus"></i>
+                        </button>
+                    </div>
+                    <small class="text-muted">
+                        Oorspronkelijk aantal: <span id="modalOrigineleAantal"></span>
+                    </small>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Nieuw subtotaal:</label>
+                    <p class="fs-5 fw-bold text-primary" id="modalNieuwSubtotaal">€0.00</p>
+                </div>
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> 
+                    <strong>Tip:</strong> Stel in op 0 om alle items te annuleren.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Annuleren
+                </button>
+                <button type="button" class="btn btn-warning" id="herstelOrigineel">
+                    <i class="bi bi-arrow-counterclockwise"></i> Herstel
+                </button>
+                <button type="button" class="btn btn-success" id="bevestigWijziging">
+                    <i class="bi bi-check-circle"></i> Opslaan
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let btwPercentage = 0.21;
+            let huidigProduct = null;
+            let origineleAantal = 0;
+            let huidigeAantal = 0;
+            let prijs = 0;
+
+            const modal = new bootstrap.Modal(document.getElementById('wijzigAantalModal'));
+            const aantalInput = document.getElementById('modalAantalInput');
+            const productNaamElement = document.getElementById('modalProductNaam');
+            const origineleAantalElement = document.getElementById('modalOrigineleAantal');
+            const nieuwSubtotaalElement = document.getElementById('modalNieuwSubtotaal');
+
+            function updateTotalen() {
+                let totaalInclusiefBtw = 0;
+                
+                document.querySelectorAll('#bestellingenTable tbody tr').forEach(row => {
+                    const aantalText = row.querySelector('.aantal-cell').textContent;
+                    const aantal = parseInt(aantalText);
+                    
+                    if (aantal > 0) {
+                        const subtotaalText = row.querySelector('.subtotaal-cell').textContent;
+                        const bedrag = parseFloat(subtotaalText.replace('€', '').replace(',', '.'));
+                        totaalInclusiefBtw += bedrag;
+                    }
+                });
+
+                // Prijzen zijn inclusief BTW - we halen BTW eruit
+                const totaalExclusiefBtw = totaalInclusiefBtw / (1 + btwPercentage);
+                const btw = totaalInclusiefBtw - totaalExclusiefBtw;
+
+                document.getElementById('subtotaal').textContent = '€' + totaalExclusiefBtw.toFixed(2);
+                document.getElementById('btw').textContent = '€' + btw.toFixed(2);
+                document.getElementById('totaal').textContent = '€' + totaalInclusiefBtw.toFixed(2);
+            }
+
+            function updateModalSubtotaal() {
+                const aantal = parseInt(aantalInput.value) || 0;
+                const subtotaal = aantal * prijs;
+                nieuwSubtotaalElement.textContent = '€' + subtotaal.toFixed(2);
+            }
+
+            // Open modal bij klik op wijzig knop
+            document.querySelectorAll('.wijzig-aantal-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    huidigProduct = this.dataset.productNaam;
+                    origineleAantal = parseInt(this.dataset.huidigAantal);
+                    huidigeAantal = origineleAantal;
+                    prijs = parseFloat(this.dataset.prijs);
+
+                    productNaamElement.textContent = huidigProduct;
+                    origineleAantalElement.textContent = origineleAantal;
+                    aantalInput.value = origineleAantal;
+                    aantalInput.setAttribute('data-origineel', origineleAantal);
+                    
+                    updateModalSubtotaal();
+                    modal.show();
+                });
+            });
+
+            // Increment/Decrement knoppen
+            document.getElementById('incrementBtn').addEventListener('click', function() {
+                const huidig = parseInt(aantalInput.value) || 0;
+                aantalInput.value = huidig + 1;
+                updateModalSubtotaal();
+            });
+
+            document.getElementById('decrementBtn').addEventListener('click', function() {
+                const huidig = parseInt(aantalInput.value) || 0;
+                if (huidig > 0) {
+                    aantalInput.value = huidig - 1;
+                    updateModalSubtotaal();
+                }
+            });
+
+            // Update subtotaal bij handmatige invoer
+            aantalInput.addEventListener('input', updateModalSubtotaal);
+
+            // Herstel origineel aantal
+            document.getElementById('herstelOrigineel').addEventListener('click', function() {
+                aantalInput.value = origineleAantal;
+                updateModalSubtotaal();
+            });
+
+            // Bevestig wijziging
+            document.getElementById('bevestigWijziging').addEventListener('click', async function() {
+                const nieuwAantal = parseInt(aantalInput.value) || 0;
+
+                if (nieuwAantal === origineleAantal) {
+                    modal.hide();
+                    return;
+                }
+
+                const confirmMessage = nieuwAantal === 0 
+                    ? `Weet u zeker dat u alle items van "${huidigProduct}" wilt annuleren?`
+                    : `Aantal wijzigen van ${origineleAantal} naar ${nieuwAantal}?`;
+
+                if (!confirm(confirmMessage)) {
+                    return;
+                }
+
+                try {
+                    const formData = new FormData();
+                    formData.append('reservatieId', @Model.ReservatieId);
+                    formData.append('productNaam', huidigProduct);
+                    formData.append('nieuwAantal', nieuwAantal);
+                    
+                    const token = document.querySelector('input[name="__RequestVerificationToken"]');
+                    if (token) {
+                        formData.append('__RequestVerificationToken', token.value);
+                    }
+
+                    const response = await fetch('@Url.Action("WijzigAantal", "Tafel")', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        // Update de tabelrij
+                        const row = Array.from(document.querySelectorAll('#bestellingenTable tbody tr'))
+                            .find(r => r.querySelector('.product-naam').textContent === huidigProduct);
+
+                        if (row) {
+                            if (nieuwAantal === 0) {
+                                // Markeer als geannuleerd
+                                row.classList.add('table-danger', 'text-decoration-line-through');
+                                row.querySelector('.aantal-cell').textContent = '0';
+                                row.querySelector('.subtotaal-cell').textContent = '€0.00';
+                                row.querySelector('.wijzig-aantal-btn').disabled = true;
+                                row.querySelector('.wijzig-aantal-btn').innerHTML = '<i class="bi bi-x-circle"></i> Geannuleerd';
+                            } else {
+                                // Update aantal en subtotaal
+                                row.querySelector('.aantal-cell').textContent = nieuwAantal;
+                                row.querySelector('.subtotaal-cell').textContent = '€' + data.nieuwSubtotaal.toFixed(2);
+                                row.dataset.huidigAantal = nieuwAantal;
+                                
+                                // Update knop data
+                                const btn = row.querySelector('.wijzig-aantal-btn');
+                                btn.dataset.huidigAantal = nieuwAantal;
+                            }
+
+                            updateTotalen();
+                        }
+
+                        modal.hide();
+                    } else {
+                        alert('Fout bij wijzigen: ' + (data.message || 'Onbekende fout'));
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Er is een fout opgetreden bij het wijzigen van het aantal.');
+                }
+            });
+        });
+    </script>
+}

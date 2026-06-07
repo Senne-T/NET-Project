@@ -1,0 +1,214 @@
+﻿@using Restaurant.ViewModels.Gebruiker
+@model ResetWachtwoordViewModel
+
+@{
+    ViewData["Title"] = "Wachtwoord resetten";
+}
+
+<style>
+    .reset-container {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 0;
+    }
+
+    .reset-card {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        max-width: 500px;
+        width: 100%;
+        overflow: hidden;
+        margin: 0 auto;
+    }
+
+    .reset-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .reset-header i {
+        font-size: 3rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .reset-header h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .reset-header p {
+        margin: 0;
+        opacity: 0.95;
+    }
+
+    .reset-body {
+        padding: 2rem;
+    }
+
+    .email-display {
+        background: #f8f9fa;
+        border: 2px solid #e9ecef;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .email-display label {
+        font-weight: 600;
+        color: #6c757d;
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .email-display .email-value {
+        color: #2d3748;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+        font-weight: 500;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 0.5rem;
+        padding: 0.625rem;
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+    }
+
+    .password-requirements {
+        background: linear-gradient(135deg, #e7f3ff 0%, #f0f9ff 100%);
+        border-left: 3px solid #667eea;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+        font-size: 0.875rem;
+    }
+
+    .password-requirements h6 {
+        color: #2d3748;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    .password-requirements ul {
+        margin: 0;
+        padding-left: 1.5rem;
+        color: #6c757d;
+    }
+
+    .password-requirements li {
+        margin-bottom: 0.25rem;
+    }
+
+    .btn-reset {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 0.875rem;
+        border-radius: 0.5rem;
+        width: 100%;
+        transition: all 0.3s;
+    }
+
+    .btn-reset:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        color: white;
+    }
+
+    .required-indicator {
+        color: #dc3545;
+        margin-left: 0.25rem;
+    }
+</style>
+
+<div class="reset-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8 col-12">
+                <div class="reset-card">
+                    <div class="reset-header">
+                        <i class="bi bi-shield-lock-fill"></i>
+                        <h1>Wachtwoord Resetten</h1>
+                        <p>Kies een nieuw, sterk wachtwoord</p>
+                    </div>
+
+                    <div class="reset-body">
+                        <form asp-action="ResetWachtwoord" method="post">
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-4 mb-3" role="alert"></div>
+
+                            <input asp-for="Token" type="hidden" />
+                            <input asp-for="Emailadres" type="hidden" />
+
+                            <div class="email-display">
+                                <label>Account</label>
+                                <div class="email-value">
+                                    <i class="bi bi-person-circle me-2"></i>@Model.Emailadres
+                                </div>
+                            </div>
+
+                            <div class="password-requirements">
+                                <h6>
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    Wachtwoord vereisten
+                                </h6>
+                                <ul>
+                                    <li>Minimaal 10 karakters</li>
+                                    <li>Bevat letters en cijfers</li>
+                                    <li>Gebruik geen eenvoudige wachtwoorden</li>
+                                </ul>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="NieuwWachtwoord">
+                                    Nieuw wachtwoord <span class="required-indicator">*</span>
+                                </label>
+                                <input asp-for="NieuwWachtwoord" type="password" class="form-control" placeholder="Min. 10 karakters" />
+                                <span asp-validation-for="NieuwWachtwoord" class="text-danger small"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="BevestigWachtwoord">
+                                    Bevestig nieuw wachtwoord <span class="required-indicator">*</span>
+                                </label>
+                                <input asp-for="BevestigWachtwoord" type="password" class="form-control" placeholder="Herhaal nieuw wachtwoord" />
+                                <span asp-validation-for="BevestigWachtwoord" class="text-danger small"></span>
+                            </div>
+
+                            <button type="submit" class="btn-reset">
+                                <i class="bi bi-check-circle me-2"></i>Wachtwoord Opslaan
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

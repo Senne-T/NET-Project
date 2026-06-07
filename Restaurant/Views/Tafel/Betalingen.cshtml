@@ -1,0 +1,135 @@
+@model IEnumerable<Restaurant.ViewModels.Reservatie.ReservatieMetFactuurViewModel>
+
+@{
+    ViewData["Title"] = "Betalingen overzicht";
+    
+    var datum = ViewData["GekozenDatum"] is DateTime d ? d : DateTime.Today;
+    var gekozenTijdslotId = ViewData["GekozenTijdslotId"] is int id ? id : 0;
+    var tijdsloten = ViewData["Tijdsloten"] as IEnumerable<Restaurant.Models.Tijdslot> ?? Enumerable.Empty<Restaurant.Models.Tijdslot>();
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Betalingen beheren</h2>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <form method="get" class="row g-3 mb-4">
+        <div class="col-md-4">
+            <label class="form-label">Datum</label>
+            <input type="date"
+                   name="datum"
+                   class="form-control"
+                   value="@datum.ToString("yyyy-MM-dd")" />
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label">Tijdslot</label>
+            <select name="tijdslotId" class="form-select">
+                @foreach (var ts in tijdsloten)
+                {
+                    var selected = ts.Id == gekozenTijdslotId ? "selected" : "";
+                    <option value="@ts.Id" selected="@selected">
+                        @ts.Naam
+                    </option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-4 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-funnel"></i> Filteren
+            </button>
+        </div>
+    </form>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> Geen reservaties gevonden voor deze datum en tijdslot.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Tafel</th>
+                        <th>Klant</th>
+                        <th>Datum</th>
+                        <th>Tijdslot</th>
+                        <th>Personen</th>
+                        <th>Totaal bedrag</th>
+                        <th>Status</th>
+                        <th>Acties</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td><strong>@item.Tafels</strong></td>
+                            <td>@item.KlantNaam</td>
+                            <td>@item.Datum?.ToString("dd/MM/yyyy")</td>
+                            <td>@item.Tijdslot</td>
+                            <td>@item.AantalPersonen</td>
+                            <td><strong>€@item.TotaalBedrag.ToString("F2")</strong></td>
+                            <td>
+                                @if (item.Betaald)
+                                {
+                                    <span class="badge bg-success">
+                                        <i class="bi bi-check-circle"></i> Betaald
+                                    </span>
+                                }
+                                else if (item.IsAanwezig)
+                                {
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="bi bi-clock-history"></i> Openstaand
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">
+                                        <i class="bi bi-dash-circle"></i> Nog niet aanwezig
+                                    </span>
+                                }
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a asp-action="Factuur" 
+                                       asp-route-id="@item.ReservatieId" 
+                                       class="btn btn-sm btn-info text-white">
+                                        <i class="bi bi-file-text"></i> Factuur
+                                    </a>
+                                    
+                                    @if (!item.Betaald && item.IsAanwezig)
+                                    {
+                                        <a asp-action="Afrekenen" 
+                                           asp-route-id="@item.ReservatieId" 
+                                           class="btn btn-sm btn-success">
+                                            <i class="bi bi-credit-card"></i> Afrekenen
+                                        </a>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

@@ -1,0 +1,275 @@
+@model Restaurant.ViewModels.Enquete.EnqueteDashboardViewModel
+
+@{
+    ViewData["Title"] = "Enquête Dashboard";
+}
+
+<div class="admin-page">
+
+    <!-- header -->
+    <div class="admin-hero d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h2 class="mb-1 fw-bold">Enquête Dashboard</h2>
+            <p class="page-subtitle mb-0">Overzicht van klantfeedback</p>
+        </div>
+    </div>
+
+    <!-- Filter Form -->
+    <div class="card shadow-sm border-0 rounded-4 mb-4">
+        <div class="card-body">
+            <form asp-action="AlleEvaluaties" method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label for="dateFrom" class="form-label">Van Datum</label>
+                    <input type="date" id="dateFrom" name="dateFrom" class="form-control" value="@ViewBag.DateFrom" />
+                </div>
+                <div class="col-md-4">
+                    <label for="dateTo" class="form-label">Tot Datum</label>
+                    <input type="date" id="dateTo" name="dateTo" class="form-control" value="@ViewBag.DateTo" />
+                </div>
+                <div class="col-md-4 d-flex align-items-end gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-funnel me-1"></i> Filter
+                    </button>
+                    <a href="@Url.Action("AlleEvaluaties", "Enquete")" class="btn btn-outline-secondary">
+                        Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Totaal Evaluaties</h5>
+                    <p class="card-text display-4 fw-bold text-primary">@Model.TotalEvaluations</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Gemiddelde Score</h5>
+                    <p class="card-text display-4 fw-bold text-warning">@Model.AverageScore.ToString("F1")</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="card shadow-sm border-0 rounded-4 mb-4">
+        <div class="card-body">
+            <h5 class="card-title fw-bold mb-3">Score Verdeling</h5>
+            <canvas id="scoreChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+
+    <!-- All Evaluations -->
+    <h3 class="fw-bold mb-3">Alle Evaluaties</h3>
+
+    @if (Model.Evaluations.Any())
+    {
+        <div class="card shadow-sm border-0 rounded-4 mb-4">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">Datum</th>
+                                <th>Klant</th>
+                                <th>Score</th>
+                                <th class="text-end pe-4">Opmerkingen</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var evaluation in Model.Evaluations)
+                            {
+                                <tr>
+                                    <td class="ps-4">@evaluation.Date?.ToString("dd/MM/yyyy")</td>
+                                    <td class="fw-semibold">@evaluation.CustomerName</td>
+                                    <td>
+                                        <span class="badge text-bg-warning-subtle text-warning px-3 py-2">
+                                            <i class="bi bi-star-fill me-1"></i>@evaluation.Score
+                                        </span>
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        @if (!string.IsNullOrEmpty(evaluation.Comments))
+                                        {
+                                            <a href="@Url.Action("Detail", "Enquete", new { id = evaluation.Id })" class="btn btn-outline-primary btn-sm">
+                                                <i class="bi bi-eye me-1"></i> Bekijk
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">/</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>Er zijn nog geen evaluaties.
+        </div>
+    }
+
+    <!-- Non-Evaluated Reservations -->
+    <h3 class="fw-bold mb-3">Reservaties zonder Evaluatie</h3>
+
+    @if (ViewBag.NonEvaluatedReservations != null && ((List<Restaurant.Models.Reservatie>)ViewBag.NonEvaluatedReservations).Any())
+    {
+        <div class="card shadow-sm border-0 rounded-4">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">Datum</th>
+                                <th>Klant</th>
+                                <th class="text-end pe-4">Acties</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var reservatie in (List<Restaurant.Models.Reservatie>)ViewBag.NonEvaluatedReservations)
+                            {
+                                <tr>
+                                    <td class="ps-4">@reservatie.Datum?.ToString("dd/MM/yyyy")</td>
+                                    <td class="fw-semibold">@reservatie.CustomUser?.Voornaam @reservatie.CustomUser?.Achternaam</td>
+                                    <td class="text-end pe-4">
+                                        <form method="post" action="@Url.Action("VerstuurEnqueteEmail", "Reservatie", new { id = reservatie.Id })" style="display:inline;" id="sendEmailForm-@reservatie.Id">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-outline-success btn-sm">
+                                                <i class="bi bi-envelope me-1"></i> Stuur Enquête
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>Er zijn geen openstaande enquêteverzoeken.
+        </div>
+    }
+</div>
+
+<!-- Email Sent Modal -->
+<div class="modal fade" id="emailSentModal" tabindex="-1" aria-labelledby="emailSentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content rounded-4">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="emailSentModalLabel">E-mail verzonden</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Message will be set by JS -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Sluiten</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('scoreChart').getContext('2d');
+        const scoreChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['0', '1', '2', '3', '4', '5'],
+                datasets: [{
+                    label: 'Aantal Evaluaties',
+                    data: [@string.Join(",", Model.ScoreDistribution)],
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Score'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Aantal Evaluaties'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Handle email send form submission
+        $(document).on('submit', 'form[id^="sendEmailForm-"]', function(e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            var formData = form.serialize();
+            var button = form.find('button[type="submit"]');
+            
+            // Disable button and show loading state
+            button.prop('disabled', true);
+            var originalText = button.html();
+            button.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Verzenden...');
+            
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    if (response.success) {
+                        $('#emailSentModal .modal-body').html('<div class="alert alert-success"><i class="bi bi-check-circle"></i> ' + response.message + '</div>');
+                        $('#emailSentModal').modal('show');
+                        
+                        // Remove the row after successful send
+                        form.closest('tr').fadeOut(500, function() {
+                            $(this).remove();
+                        });
+                    } else {
+                        $('#emailSentModal .modal-body').html('<div class="alert alert-danger"><i class="bi bi-x-circle"></i> ' + (response.message || 'Er is een fout opgetreden.') + '</div>');
+                        $('#emailSentModal').modal('show');
+                        
+                        // Re-enable button
+                        button.prop('disabled', false);
+                        button.html(originalText);
+                    }
+                },
+                error: function() {
+                    $('#emailSentModal .modal-body').html('<div class="alert alert-danger"><i class="bi bi-x-circle"></i> Er is een fout opgetreden bij het verzenden van de e-mail.</div>');
+                    $('#emailSentModal').modal('show');
+                    
+                    // Re-enable button
+                    button.prop('disabled', false);
+                    button.html(originalText);
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,174 @@
+﻿@using Restaurant.ViewModels.Gebruiker
+@model WachtwoordVergetenViewModel
+
+@{
+    ViewData["Title"] = "Wachtwoord vergeten";
+}
+
+<style>
+    .forgot-container {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 0;
+    }
+
+    .forgot-card {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        max-width: 500px;
+        width: 100%;
+        overflow: hidden;
+        margin: 0 auto;
+    }
+
+    .forgot-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .forgot-header i {
+        font-size: 3rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .forgot-header h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .forgot-header p {
+        margin: 0;
+        opacity: 0.95;
+        font-size: 0.95rem;
+    }
+
+    .forgot-body {
+        padding: 2rem;
+    }
+
+    .info-box {
+        background: linear-gradient(135deg, #e7f3ff 0%, #f0f9ff 100%);
+        border-left: 3px solid #667eea;
+        padding: 1.25rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .info-box p {
+        margin: 0;
+        color: #2d3748;
+        line-height: 1.6;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        font-weight: 500;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 0.5rem;
+        padding: 0.625rem;
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+    }
+
+    .btn-submit {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 0.875rem;
+        border-radius: 0.5rem;
+        width: 100%;
+        transition: all 0.3s;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        color: white;
+    }
+
+    .back-link {
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+
+    .back-link a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .back-link a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="forgot-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8 col-12">
+                <div class="forgot-card">
+                    <div class="forgot-header">
+                        <i class="bi bi-question-circle-fill"></i>
+                        <h1>Wachtwoord Vergeten?</h1>
+                        <p>Geen probleem, we helpen u verder</p>
+                    </div>
+
+                    <div class="forgot-body">
+                        <div class="info-box">
+                            <p>
+                                <i class="bi bi-info-circle me-2"></i>
+                                <strong>Hoe werkt het?</strong><br>
+                                Vul uw e-mailadres in. Als er een account bestaat met dit e-mailadres, ontvangt u een link om uw wachtwoord te resetten.
+                            </p>
+                        </div>
+
+                        <form asp-action="WachtwoordVergeten" method="post">
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-4 mb-3" role="alert"></div>
+
+                            <div class="form-group">
+                                <label asp-for="Emailadres">
+                                    <i class="bi bi-envelope me-2"></i>E-mailadres
+                                </label>
+                                <input asp-for="Emailadres" class="form-control" placeholder="naam@voorbeeld.be" />
+                                <span asp-validation-for="Emailadres" class="text-danger small"></span>
+                            </div>
+
+                            <button type="submit" class="btn-submit">
+                                <i class="bi bi-send me-2"></i>Verstuur Resetlink
+                            </button>
+                        </form>
+
+                        <div class="back-link">
+                            <a asp-action="Login" asp-controller="Gebruiker">
+                                <i class="bi bi-arrow-left me-1"></i>Terug naar aanmelden
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

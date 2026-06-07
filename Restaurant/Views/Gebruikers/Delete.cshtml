@@ -1,0 +1,19 @@
+﻿@using Restaurant.ViewModels.Gebruiker
+@model GebruikerDeleteViewModel
+
+@inject UserManager<CustomUser> UserManager
+@{
+	ViewData["Title"] = "Account verwijderen";
+}
+
+<h3>Ben je zeker dat je de gebruiker @Model.Emailadres wilt verwijderen?</h3>
+<p>Dit kan <strong>niet</strong> ongedaan gemaakt worden.</p>
+
+<form asp-action="DeleteConfirmed" asp-controller="Gebruikers" method="post">
+	<input type="hidden" asp-for="Id" />
+
+	<a asp-action="Index" asp-controller="Gebruikers" class="btn btn-secondary">
+		<i class="bi bi-arrow-left"></i> Annuleren
+	</a>
+	<button type="submit" class="btn btn-danger">Verwijderen</button>
+</form>

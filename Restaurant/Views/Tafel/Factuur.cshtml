@@ -1,0 +1,101 @@
+@model Restaurant.ViewModels.Reservatie.FactuurViewModel
+
+@{
+    ViewData["Title"] = "Factuur";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <div class="card shadow">
+                <div class="card-header @(Model.IsBetaald ? "bg-success" : "bg-primary") text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-receipt"></i> Factuur
+                        @if (Model.IsBetaald)
+                        {
+                            <span class="badge bg-light text-success float-end">
+                                <i class="bi bi-check-circle"></i> BETAALD
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-light text-warning float-end">
+                                <i class="bi bi-clock-history"></i> OPENSTAAND
+                            </span>
+                        }
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5>Klantgegevens</h5>
+                            <p class="mb-1"><strong>Naam:</strong> @Model.KlantNaam</p>
+                            <p class="mb-1"><strong>Datum:</strong> @Model.Datum?.ToString("dd/MM/yyyy")</p>
+                            <p class="mb-1"><strong>Tijdslot:</strong> @Model.Tijdslot</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Reservatiedetails</h5>
+                            <p class="mb-1"><strong>Tafel(s):</strong> @Model.Tafels</p>
+                            <p class="mb-1"><strong>Aantal personen:</strong> @Model.AantalPersonen</p>
+                            <p class="mb-1"><strong>Reservatie ID:</strong> #@Model.ReservatieId</p>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <h5 class="mb-3">Bestellingen</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th class="text-center">Aantal</th>
+                                    <th class="text-end">Prijs</th>
+                                    <th class="text-end">Subtotaal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var regel in Model.Regels)
+                                {
+                                    <tr>
+                                        <td>@regel.ProductNaam</td>
+                                        <td class="text-center">@regel.Aantal</td>
+                                        <td class="text-end">€@regel.Prijs.ToString("F2")</td>
+                                        <td class="text-end">€@regel.Subtotaal.ToString("F2")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="3" class="text-end">Excl. BTW:</th>
+                                    <th class="text-end">€@Model.Subtotaal.ToString("F2")</th>
+                                </tr>
+                                <tr>
+                                    <th colspan="3" class="text-end">BTW (21%):</th>
+                                    <th class="text-end">€@Model.BTW.ToString("F2")</th>
+                                </tr>
+                                <tr class="table-primary">
+                                    <th colspan="3" class="text-end">Totaal incl. BTW:</th>
+                                    <th class="text-end fs-5">€@Model.Totaal.ToString("F2")</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <div class="mt-4 d-flex justify-content-between">
+                        <a asp-action="Betalingen" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Terug naar overzicht
+                        </a>
+                        
+                        @if (!Model.IsBetaald)
+                        {
+                            <a asp-action="Afrekenen" asp-route-id="@Model.ReservatieId" class="btn btn-success">
+                                <i class="bi bi-credit-card"></i> Afrekenen
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

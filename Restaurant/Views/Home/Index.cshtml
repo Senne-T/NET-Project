@@ -1,0 +1,162 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+<section class="full-bleed hero">
+    <div class="container-fluid py-5">
+        <div class="row align-items-center g-4 mx-auto" style="max-width: 1320px;">
+            <div class="col-lg-6">
+
+                <h1 class="display-5 fw-bold mb-3">
+                    Chez Antoine
+                </h1>
+
+                <p class="lead mb-4 opacity-75">
+                    Geniet van heerlijke gerechten en dranken in een gezellige sfeer.
+                    Reserveer eenvoudig online en kom genieten in ons restaurant.
+                </p>
+
+                <div class="d-flex flex-wrap gap-2">
+                    <a class="btn btn-light btn-lg" href="@Url.Action("Index", "Reservatie")">
+                        <i class="bi bi-calendar-check me-2"></i> Reserveer nu
+                    </a>
+
+                    <a class="btn btn-outline-light btn-lg" href="#contact">
+                        <i class="bi bi-telephone me-2"></i> Contact
+                    </a>
+                </div>
+
+                <div class="mt-4 small opacity-75">
+                    <i class="bi bi-clock me-1"></i> Di–Zo 11:30–22:00
+                    <span class="mx-2">•</span>
+                    <i class="bi bi-geo-alt me-1"></i> Turnhout
+                </div>
+            </div>
+
+            <div class="col-lg-6 text-center">
+                <div class="hero-card shadow-lg">
+                    <img src="~/img/ShezAntoineLogoTemp.png"
+                         alt="Chez Antoine Restaurant"
+                         class="img-fluid hero-logo" />
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container my-5">
+    <div class="row g-3">
+        <div class="col-md-6">
+            <a class="card action-card h-100 text-decoration-none" href="@Url.Action("Index", "Reservatie")">
+                <div class="card-body">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-calendar-check fs-4"></i>
+                        <h5 class="mb-0">Reserveer een tafel</h5>
+                    </div>
+                    <p class="text-muted mb-0">Kies datum en tijdslot in enkele klikken.</p>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-6">
+            <a class="card action-card h-100 text-decoration-none" href="@Url.Action("MyReservations", "Reservatie")">
+                <div class="card-body">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-list-check fs-4"></i>
+                        <h5 class="mb-0">Mijn reservaties</h5>
+                    </div>
+                    <p class="text-muted mb-0">Bekijk en beheer je reservaties.</p>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<section class="full-bleed soft-section">
+    <div class="container py-5">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-6">
+                <h2 class="fw-bold mb-3">Over ons</h2>
+                <p class="text-muted mb-0">
+                    Ons restaurant staat voor kwaliteit, gastvrijheid en een warme sfeer.
+                    We werken met verse ingrediënten en serveren klassiekers met een moderne touch.
+                    Kom langs en ontdek wat we voor u kunnen betekenen.
+                </p>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="row g-3">
+                    <div class="col-12 col-md-4">
+                        <div class="feature text-center">
+                            <div class="feature-icon">🥬</div>
+                            <div class="fw-semibold mt-2">Verse ingrediënten</div>
+                            <div class="text-muted small">Altijd zorgvuldig gekozen.</div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <div class="feature text-center">
+                            <div class="feature-icon">😊</div>
+                            <div class="fw-semibold mt-2">Vriendelijke service</div>
+                            <div class="text-muted small">Warm onthaal voor iedereen.</div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <div class="feature text-center">
+                            <div class="feature-icon">🏠</div>
+                            <div class="fw-semibold mt-2">Gezellige sfeer</div>
+                            <div class="text-muted small">Ideaal met vrienden/familie.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<div id="contact" class="container my-5">
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="info-tile h-100">
+                <div class="fw-semibold mb-1"><i class="bi bi-clock me-2"></i>Openingsuren</div>
+                <div class="text-muted">Di–Zo: 11:30–22:00</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="info-tile h-100">
+                <div class="fw-semibold mb-1"><i class="bi bi-geo-alt me-2"></i>Adres</div>
+                <div class="text-muted">Turnhout, België</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="info-tile h-100">
+                <div class="fw-semibold mb-1"><i class="bi bi-envelope me-2"></i>Contact</div>
+                <div class="text-muted">restaurant.testmail.tm@gmail.com</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="cta-card cta-light">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div>
+                <div class="fw-bold fs-4">Klaar om te genieten?</div>
+                <div class="cta-subtext">
+                    Reserveer je tafel en kom proeven van onze heerlijke gerechten.
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <a class="btn btn-dark" href="@Url.Action("Index", "Reservatie")">
+                    <i class="bi bi-calendar-check me-1"></i> Reserveer nu
+                </a>
+                <a class="btn btn-outline-dark" href="#contact">
+                    <i class="bi bi-telephone me-1"></i> Contact
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

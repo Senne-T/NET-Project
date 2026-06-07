@@ -1,0 +1,61 @@
+@{
+    ViewData["Title"] = "Geen Toegang";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0"><i class="bi bi-lock me-2"></i>Toegang Geweigerd</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning mb-4">
+                        <h5 class="alert-heading"><i class="bi bi-exclamation-triangle me-2"></i>U kunt momenteel geen bestellingen plaatsen</h5>
+                    </div>
+                    
+                    <p class="lead mb-3">Mogelijke redenen:</p>
+                    
+                    <ul class="list-unstyled">
+                        <li class="mb-3">
+                            <i class="bi bi-x-circle text-danger me-2"></i>
+                            <strong>Geen actieve reservatie vandaag</strong>
+                            <br>
+                            <small class="text-muted ms-4">U moet een reservatie hebben voor vandaag en aanwezig zijn aan uw tafel.</small>
+                        </li>
+                        <li class="mb-3">
+                            <i class="bi bi-x-circle text-danger me-2"></i>
+                            <strong>Nog niet aangekomen</strong>
+                            <br>
+                            <small class="text-muted ms-4">De zaalverantwoordelijke moet u eerst toewijzen aan een tafel.</small>
+                        </li>
+                        <li class="mb-3">
+                            <i class="bi bi-check-circle text-success me-2"></i>
+                            <strong>Rekening al betaald</strong>
+                            <br>
+                            <small class="text-muted ms-4">Als u al heeft afgerekend, kunt u geen nieuwe bestellingen meer plaatsen.</small>
+                        </li>
+                    </ul>
+
+                    <div class="mt-4 p-3 bg-light rounded">
+                        <h6><i class="bi bi-info-circle me-2"></i>Om te bestellen heeft u nodig:</h6>
+                        <ol class="mb-0">
+                            <li>Een bevestigde reservatie voor <strong>vandaag</strong></li>
+                            <li>Aanwezigheid aan uw tafel (toegewezen door personeel)</li>
+                            <li>De rekening moet <strong>nog niet betaald</strong> zijn</li>
+                        </ol>
+                    </div>
+
+                    <div class="mt-4">
+                        <a href="@Url.Action("Index", "Reservatie")" class="btn btn-primary">
+                            <i class="bi bi-calendar-check me-2"></i>Ga naar Reservaties
+                        </a>
+                        <a href="@Url.Action("Index", "Home")" class="btn btn-secondary">
+                            <i class="bi bi-house me-2"></i>Terug naar Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,477 @@
+@model ReservatieViewModel
+
+@{
+    ViewData["Title"] = "Tafel Reserveren";
+    var parametersOntbreken = string.IsNullOrEmpty(Model.RestaurantNaam) || Model.MaxPersonenPerReservatie <= 0;
+}
+
+<style>
+    .reservation-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0 0 1.5rem 1.5rem;
+    }
+
+    .reservation-hero h1 {
+        font-size: 2rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .reservation-hero p {
+        font-size: 1rem;
+        margin-bottom: 0;
+    }
+
+    .reservation-card {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .form-control, .form-select {
+        border: 2px solid #e9ecef;
+        border-radius: 0.5rem;
+        padding: 0.625rem 0.875rem;
+    }
+
+    .guest-count-selector {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        padding: 0.875rem;
+        background: #f8f9fa;
+        border-radius: 0.75rem;
+    }
+
+    .guest-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: 2px solid #667eea;
+        background: white;
+        color: #667eea;
+        font-size: 1.25rem;
+        font-weight: bold;
+    }
+
+    .guest-display {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #667eea;
+        min-width: 60px;
+        text-align: center;
+    }
+
+    .timeslot-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 0.75rem;
+        margin-top: 0.75rem;
+    }
+
+    .timeslot-card {
+        border: 2px solid #e9ecef;
+        border-radius: 0.75rem;
+        padding: 1rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        background: white;
+    }
+
+    .timeslot-card.available:hover {
+        border-color: #667eea;
+        background: #f8f9ff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+    }
+
+    .timeslot-card.selected {
+        border-color: #28a745 !important;
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%) !important;
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3) !important;
+    }
+
+    .timeslot-card.selected .timeslot-icon {
+        color: #28a745;
+    }
+
+    .timeslot-card.unavailable {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background: #f8f9fa;
+    }
+
+    .timeslot-card.unavailable:hover {
+        transform: none;
+    }
+
+    .timeslot-icon {
+        font-size: 1.75rem;
+        margin-bottom: 0.375rem;
+    }
+
+    .timeslot-name {
+        font-weight: 600;
+        font-size: 1rem;
+    }
+
+    .timeslot-status {
+        font-size: 0.85rem;
+    }
+
+    .btn-reserve {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        color: white;
+        font-size: 1.1rem;
+        font-weight: 600;
+        padding: 0.875rem 2rem;
+        border-radius: 0.5rem;
+    }
+
+    .quick-link {
+        display: inline-block;
+        background: white;
+        border: 2px solid #667eea;
+        color: #667eea;
+        padding: 0.625rem 1.25rem;
+        border-radius: 1.5rem;
+        font-weight: 600;
+        text-decoration: none;
+        margin-bottom: 1.5rem;
+    }
+
+    .info-card h5 {
+        color: #667eea;
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .info-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .info-list li {
+        padding: 0.625rem 0;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 0.5rem;
+        border-left: 3px solid #667eea;
+        padding-left: 0.875rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .info-list i {
+        color: #667eea;
+        font-size: 1.1rem;
+    }
+</style>
+
+<div class="reservation-hero">
+    <div class="container text-center">
+        <h1 class="fw-bold">
+            <i class="bi bi-calendar-heart"></i> Reserveer uw Tafel
+        </h1>
+        <p>Bij Chez Antoine bent u welkom</p>
+    </div>
+</div>
+
+<div class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            
+            <div class="text-center">
+                <a asp-controller="Reservatie" asp-action="MyReservations" class="quick-link">
+                    <i class="bi bi-list-check me-2"></i> Mijn reservaties
+                </a>
+            </div>
+
+            @if (parametersOntbreken)
+            {
+                <div class="alert alert-danger rounded-4 p-3">
+                    <h5 class="alert-heading">
+                        <i class="bi bi-exclamation-triangle-fill"></i> Configuratiefout
+                    </h5>
+                    <p class="mb-0">Er ontbreken belangrijke configuratieparameters.</p>
+                </div>
+            }
+            else
+            {
+                @if (!User.Identity.IsAuthenticated)
+                {
+                    <div class="info-card mb-3 p-3 bg-light rounded">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        <strong>Development:</strong> Test account wordt gebruikt.
+                    </div>
+                }
+
+                <form asp-action="Create" method="post" id="reservatieForm">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="reservation-card">
+                        <div class="card-body p-3 p-md-4">
+                            <div class="mb-3">
+                                <h5 class="fw-bold mb-2">
+                                    <span class="badge bg-primary rounded-circle me-2">1</span>
+                                    Datum
+                                </h5>
+                                <input asp-for="Datum" 
+                                       class="form-control" 
+                                       type="date" 
+                                       id="datumInput"
+                                       min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")"
+                                       max="@DateTime.Today.AddDays(Model.MaxDagenVooruitReserveren).ToString("yyyy-MM-dd")" />
+                                <span asp-validation-for="Datum" class="text-danger"></span>
+                            </div>
+
+                            <hr class="my-3">
+
+                            <div class="mb-3">
+                                <h5 class="fw-bold mb-2">
+                                    <span class="badge bg-primary rounded-circle me-2">2</span>
+                                    Aantal gasten
+                                </h5>
+                                <div class="guest-count-selector">
+                                    <button type="button" class="guest-btn" id="decreaseGuests">
+                                        <i class="bi bi-dash"></i>
+                                    </button>
+                                    <div class="guest-display" id="guestDisplay">2</div>
+                                    <button type="button" class="guest-btn" id="increaseGuests">
+                                        <i class="bi bi-plus"></i>
+                                    </button>
+                                </div>
+                                <input asp-for="AantalPersonen" 
+                                       type="hidden"
+                                       id="aantalPersonenInput"
+                                       value="2" />
+                                <span asp-validation-for="AantalPersonen" class="text-danger"></span>
+                                <div id="largeGroupWarning" class="alert alert-warning mt-2 py-2" style="display: none;">
+                                    <small><i class="bi bi-info-circle"></i> Voor grote groepen adviseren wij telefonisch contact.</small>
+                                </div>
+                            </div>
+
+                            <hr class="my-3">
+
+                            <div class="mb-3">
+                                <h5 class="fw-bold mb-2">
+                                    <span class="badge bg-primary rounded-circle me-2">3</span>
+                                    Tijdslot
+                                </h5>
+                                <input asp-for="TijdSlotId" type="hidden" />
+                                <div id="tijdslotBeschikbaarheid" class="timeslot-grid">
+                                    <div class="text-center py-3">
+                                        <div class="spinner-border text-primary" role="status"></div>
+                                        <p class="mt-2 small text-muted">Laden...</p>
+                                    </div>
+                                </div>
+                                <span asp-validation-for="TijdSlotId" class="text-danger d-block mt-2"></span>
+                            </div>
+
+                            <hr class="my-3">
+
+                            <div class="mb-3">
+                                <h5 class="fw-bold mb-2">
+                                    <span class="badge bg-primary rounded-circle me-2">4</span>
+                                    Bijzonderheden (optioneel)
+                                </h5>
+                                <textarea asp-for="Opmerking" 
+                                          class="form-control" 
+                                          rows="3" 
+                                          placeholder="Allergieën, speciale wensen..."></textarea>
+                                <span asp-validation-for="Opmerking" class="text-danger"></span>
+                            </div>
+
+                            <div class="d-grid gap-2 mt-4">
+                                <button type="submit" class="btn-reserve">
+                                    <i class="bi bi-check-circle-fill me-2"></i> Bevestigen
+                                </button>
+                                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+                                    Annuleren
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="reservation-card mt-3">
+                    <div class="card-body p-3">
+                        <h5 class="fw-bold mb-3">
+                            <i class="bi bi-info-circle-fill text-primary me-2"></i>
+                            Belangrijk
+                        </h5>
+                        <ul class="info-list">
+                            <li>
+                                <i class="bi bi-calendar-range"></i>
+                                <span><strong>@Model.MaxDagenVooruitReserveren dagen</strong> vooruit reserveren</span>
+                            </li>
+                            <li>
+                                <i class="bi bi-clock-history"></i>
+                                <span>Annuleren tot <strong>@Model.AnnulatieTermijn uur</strong> voor aanvang</span>
+                            </li>
+                            <li>
+                                <i class="bi bi-envelope"></i>
+                                <span><strong>Bevestigingsmail</strong> na reservering</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    @if (!parametersOntbreken)
+    {
+        <script>
+            $(document).ready(function() {
+                const minGuests = @Model.MinPersonenPerReservatie;
+                const maxGuests = @Model.MaxPersonenPerReservatie;
+                let currentGuests = 2;
+                let selectedTimeslot = null;
+
+                // Guest counter
+                function updateGuestDisplay() {
+                    $('#guestDisplay').text(currentGuests);
+                    $('#aantalPersonenInput').val(currentGuests);
+                    
+                    $('#decreaseGuests').prop('disabled', currentGuests <= minGuests);
+                    
+                    if (currentGuests > maxGuests) {
+                        $('#largeGroupWarning').slideDown();
+                    } else {
+                        $('#largeGroupWarning').slideUp();
+                    }
+                    
+                    laadBeschikbaarheid();
+                }
+
+                $('#decreaseGuests').click(function() {
+                    if (currentGuests > minGuests) {
+                        currentGuests--;
+                        updateGuestDisplay();
+                    }
+                });
+
+                $('#increaseGuests').click(function() {
+                    currentGuests++;
+                    updateGuestDisplay();
+                });
+
+                // Datum change
+                $('#datumInput').on('change', function() {
+                    selectedTimeslot = null;
+                    $('input[name="TijdSlotId"]').val('');
+                    laadBeschikbaarheid();
+                });
+
+                // Laad beschikbaarheid
+                function laadBeschikbaarheid() {
+                    const datum = $('#datumInput').val();
+                    const aantalPersonen = currentGuests;
+
+                    if (!datum) {
+                        $('#tijdslotBeschikbaarheid').html(`
+                            <div class="text-center col-12 py-4">
+                                <i class="bi bi-calendar-x text-muted" style="font-size: 3rem;"></i>
+                                <p class="mt-3 text-muted">Selecteer eerst een datum</p>
+                            </div>
+                        `);
+                        return;
+                    }
+
+                    $('#tijdslotBeschikbaarheid').html(`
+                        <div class="text-center col-12 py-4">
+                            <div class="spinner-border text-primary" role="status"></div>
+                            <p class="mt-3 text-muted">Beschikbaarheid wordt gecontroleerd...</p>
+                        </div>
+                    `);
+
+                    $.ajax({
+                        url: '@Url.Action("GetTijdslotBeschikbaarheid", "Reservatie")',
+                        type: 'GET',
+                        data: { datum: datum, aantalPersonen: aantalPersonen },
+                        success: function(data) {
+                            if (data.error) {
+                                $('#tijdslotBeschikbaarheid').html(`
+                                    <div class="col-12">
+                                        <div class="alert alert-danger">${data.error}</div>
+                                    </div>
+                                `);
+                                return;
+                            }
+
+                            let html = '';
+                            data.forEach(function(tijdslot) {
+                                const availableClass = tijdslot.isBeschikbaar ? 'available' : 'unavailable';
+                                const icon = tijdslot.isBeschikbaar ? 'check-circle-fill' : 'x-circle-fill';
+                                const status = tijdslot.isBeschikbaar ? 'Beschikbaar' : 'Volgeboekt';
+                                
+                                html += `
+                                    <div class="timeslot-card ${availableClass}" data-id="${tijdslot.tijdSlotId}" data-available="${tijdslot.isBeschikbaar}">
+                                        <div class="timeslot-icon">
+                                            <i class="bi bi-${icon}"></i>
+                                        </div>
+                                        <div class="timeslot-name">${tijdslot.naam}</div>
+                                        <div class="timeslot-status">${status}</div>
+                                    </div>
+                                `;
+                            });
+
+                            $('#tijdslotBeschikbaarheid').html(html);
+
+                            // Klik handlers voor tijdslots
+                            $('.timeslot-card.available').click(function() {
+                                const id = $(this).data('id');
+                                selectedTimeslot = id;
+                                $('input[name="TijdSlotId"]').val(id);
+                                
+                                $('.timeslot-card').removeClass('selected');
+                                $(this).addClass('selected');
+                            });
+                        },
+                        error: function() {
+                            $('#tijdslotBeschikbaarheid').html(`
+                                <div class="col-12">
+                                    <div class="alert alert-danger">
+                                        <i class="bi bi-exclamation-triangle"></i> 
+                                        Fout bij het ophalen van beschikbaarheid
+                                    </div>
+                                </div>
+                            `);
+                        }
+                    });
+                }
+
+                // Initieel laden
+                updateGuestDisplay();
+                if ($('#datumInput').val()) {
+                    laadBeschikbaarheid();
+                }
+            });
+        </script>
+    }
+}

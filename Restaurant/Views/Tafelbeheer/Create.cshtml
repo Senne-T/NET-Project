@@ -1,0 +1,93 @@
+@model Restaurant.ViewModels.Tafel.TafelCreateViewModel
+
+@{
+    ViewData["Title"] = "Nieuwe tafel toevoegen";
+}
+
+<div class="admin-page">
+    <div class="mb-4">
+        <a asp-action="Index" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left me-1"></i> Terug naar overzicht
+        </a>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-4">
+            <h2 class="fw-bold mb-4">
+                <i class="bi bi-plus-circle me-2"></i>Nieuwe tafel toevoegen
+            </h2>
+
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-4"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="TafelNummer" class="form-label fw-semibold"></label>
+                            <input asp-for="TafelNummer" class="form-control" placeholder="Bijv: T01, Tafel 5, A1" />
+                            <span asp-validation-for="TafelNummer" class="text-danger"></span>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="MinAantalPersonen" class="form-label fw-semibold">Minimum personen</label>
+                                <input asp-for="MinAantalPersonen" class="form-control" type="number" min="1" max="50" />
+                                <span asp-validation-for="MinAantalPersonen" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="AantalPersonen" class="form-label fw-semibold">Maximum personen</label>
+                                <input asp-for="AantalPersonen" class="form-control" type="number" min="1" max="50" />
+                                <span asp-validation-for="AantalPersonen" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 mt-3">
+                            <label asp-for="QrBarcode" class="form-label fw-semibold">QR Code / Barcode</label>
+                            <input asp-for="QrBarcode" class="form-control" placeholder="Optioneel" />
+                            <span asp-validation-for="QrBarcode" class="text-danger"></span>
+                            <div class="form-text">Optioneel: Een unieke QR code of barcode voor deze tafel</div>
+                        </div>
+
+                        <div class="mb-3 form-check form-switch">
+                            <input asp-for="Actief" class="form-check-input" type="checkbox" role="switch" />
+                            <label asp-for="Actief" class="form-check-label fw-semibold"></label>
+                            <div class="form-text">Alleen actieve tafels kunnen gebruikt worden voor reservaties</div>
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-lg me-1"></i> Opslaan
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-lg me-1"></i> Annuleren
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card bg-light border-0">
+                        <div class="card-body">
+                            <h5 class="card-title fw-semibold">
+                                <i class="bi bi-info-circle me-2"></i>Toelichting
+                            </h5>
+                            <ul class="mb-0">
+                                <li class="mb-2"><strong>Tafelnummer:</strong> Een unieke naam of nummer voor de tafel</li>
+                                <li class="mb-2"><strong>Capaciteit:</strong> Geef een bereik op (min-max) voor het aantal personen</li>
+                                <li class="mb-2"><strong>QR Code:</strong> Optioneel voor digitale bestelsystemen</li>
+                                <li class="mb-0"><strong>Actief:</strong> Alleen actieve tafels zijn beschikbaar voor reservaties</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
