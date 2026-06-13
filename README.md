@@ -9,3 +9,13 @@ Hiervoor hebben we verschillende pagina's gemaakt waarbij veel CRUD-operaties aa
 Op de pagina's zelf hebben we dan een mooie consistente layout gebruikt voor een goede user experience.
 
 Door deze opdracht heb ik veel bijgeleerd over het MVC principe waarbij de data op een correcte manier wordt opgeslagen en opgehaald. Ook heb ik veel bijgeleerd op vlak van feedback geven en krijgen, dit aangezien we elkaars werk moesten reviewen.
+
+## Voorbeelden
+
+![](./img/img-1.png)
+
+![](./img/img-2.png)
+
+![](./img/img-3.png)
+
+![](./img/img-4.png)
